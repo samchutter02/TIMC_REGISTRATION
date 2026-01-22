@@ -336,7 +336,7 @@ if (file_exists(__DIR__ . "/.reg-closed")) {
 
       <!-- PAGE 1 -->
       <div class="step active card" id="step1">
-        <h2>1. Group & Organization Information</h2>
+        <h2>1. Registration Information</h2>
         <div style="margin: 1.5rem 0;">
           <strong>This registration is for:</strong>
           <div class="radio-group">
@@ -349,11 +349,7 @@ if (file_exists(__DIR__ . "/.reg-closed")) {
             <td><strong id="registrant-name-label">Group Name:</strong></td>
             <td colspan="3"><input type="text" name="group_name" id="registrant-name" required></td>
           </tr>
-          <tr>
-            <td><strong>School Name:</strong></td>
-            <td><input type="text" name="school_name" placeholder="(if applicable)"></td>
-          </tr>
-          <tr>
+            <tr>
             <td><strong>Workshop Type:</strong></td>
             <td colspan="3">
               <div class="radio-group">
@@ -361,6 +357,31 @@ if (file_exists(__DIR__ . "/.reg-closed")) {
                 <label><input type="radio" name="workshop_type" value="Folklorico"> Folklorico</label>
               </div>
             </td>
+          </tr>
+          <tr>
+            <td><strong id="hotel-question-label">Will you / your group be staying at a hotel during the conference?</strong></td>
+            <td colspan="3">
+              <div class="radio-group">
+                <label><input type="radio" name="hotel" value="yes" required> Yes</label>
+                <label><input type="radio" name="hotel" value="no" required> No</label>
+              </div>
+
+              <div id="hotel-details-container" style="margin-top: 20px; display: none; padding: 16px; background: #f8f9fa; border-radius: 8px; border: 1px solid #dee2e6;">
+                <div style="margin-bottom: 16px;">
+                  <label for="hotel_name"><strong>Hotel Name:</strong></label>
+                  <input type="text" id="hotel_name" name="hotel_name" placeholder="e.g., Ramada by Wyndham Tucson, DoubleTree by Hilton, etc." style="margin-top: 6px;">
+                </div>
+                <div>
+                  <label for="hotel_nights"><strong>How many nights will you / your group be staying?</strong></label>
+                  <input type="number" id="hotel_nights" name="hotel_nights" min="1" max="30" style="width: 120px; margin-top: 6px;" placeholder="e.g., 3">
+                </div>
+              </div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>School Name:</strong></td>
+            <td><input type="text" name="school_name" placeholder="(if applicable)"></td>
           </tr>
           <tr>
             <td><strong>Group Type:</strong></td>
@@ -398,26 +419,8 @@ if (file_exists(__DIR__ . "/.reg-closed")) {
               </div>
             </td>
           </tr>
-          <tr>
-            <td><strong>Will your group be staying at a hotel during the conference?</strong></td>
-            <td colspan="3">
-              <div class="radio-group">
-                <label><input type="radio" name="hotel" value="yes"> Yes</label>
-                <label><input type="radio" name="hotel" value="no"> No</label>
-              </div>
-
-              <div id="hotel-name-container" style="margin-top: 16px; display: none;">
-                <label for="hotel_name"><strong>Hotel Name:</strong></label>
-                <input type="text" id="hotel_name" name="hotel_name" placeholder="e.g., Ramada by Wyndham Tucson, DoubleTree by Hilton, etc.">
-              </div>
-            </td>
-          </tr>
         </table>
-      </div>
 
-      <!-- PAGE 2 -->
-      <div class="step card" id="step2">
-        <h2>2. Contact & Performance Preferences</h2>
         <div style="margin-bottom: 1.8rem; padding: 16px; background: #f0fdf4; border-radius: 10px; border: 1px solid #bbf7d0;">
           <strong>Are you the director of this group?</strong>
           <div class="radio-group" style="margin-top: 12px;">
@@ -448,7 +451,12 @@ if (file_exists(__DIR__ . "/.reg-closed")) {
             </p>
           </div>
         </div>
-        <!--PAGE 2-->
+        
+      </div>
+
+      <!-- PAGE 2 -->
+      <div class="step card" id="step2">
+        <h2>2. Contact & Performance Preferences</h2>
         <table class="form-top">
           <tr>
             <td><strong>Director First Name:</strong></td>
@@ -568,20 +576,14 @@ if (file_exists(__DIR__ . "/.reg-closed")) {
       <div class="step card" id="step3">
         <h2>3. Participants</h2>
 
-        <div class="controls">
-          <label><b>Enter the amount of participants here</b> <i>(you can always add more later)</i>:
-            <input type="number" id="initial_count" min="1" max="70" value="1" oninput="updateGenerateButtonLabel()">
-          </label>
-          <button type="button" id="generateRowsBtn" class="primary" onclick="generateRows()">Generate 10 rows</button>
-        </div>
-
         <table class="participant-table" id="participants">
+          <h4 style="color: black; font-weight: light;">Enter participants below:</h4>
           <thead>
             <tr>
               <th>•</th>
               <th>First Name</th>
               <th>Last Name</th>
-              <th>Age</th>
+              <th style="width: 100px;">Age</th>
               <th>Gender</th>
               <th>Grade</th>
               <th>Race</th>
@@ -596,7 +598,7 @@ if (file_exists(__DIR__ . "/.reg-closed")) {
         <button type="button" class="add" onclick="addRow()" style="margin-top: 1rem;">+ Add Participant</button>
 
         <div id="showcase-songs-section" class="hidden" style="margin-top: 40px; padding-top: 24px; border-top: 2px solid #e0e0e0;">
-          <h2 style="margin-bottom: 16px; color: #1e40af;">Showcase Performance – Song List</h2>
+          <h2 style="margin-bottom: 16px; color: #1e40af;">Showcase Performance - Song List</h2>
           <p style="margin: 0 0 20px 0; color: #555; font-size: 0.98em;">
             Please enter up to 3 songs for your showcase performance.<br>
             <strong>Total combined length must not exceed 9 minutes (540 seconds).</strong>
@@ -626,6 +628,7 @@ if (file_exists(__DIR__ . "/.reg-closed")) {
 
         <input type="hidden" name="total_cost" id="total_cost" value="0">
       </div>
+
       <div class="step card" id="step4" style="margin: 40px 0 24px; padding: 24px; background: #f0f9ff; border-radius: 12px; border: 1px solid #bae6fd;">
         <h2>4. Payment Information</h2>
           <div class="radio-group" style="font-size: 1.1rem;">
@@ -639,233 +642,424 @@ if (file_exists(__DIR__ . "/.reg-closed")) {
             </label>
             <p style="margin-top: 16px; font-size: 0.95rem; color: #475569;">
             <strong>Purchase Order:</strong> Your group will receive a confirmation email with invoice details. 
-            No payment is processed now — please submit PO/payment within the stated deadline.
+            No payment is processed now - please submit PO/payment within the stated deadline.
             </p>
-    </div>
-  </div>
+          </div>
+      </div>
+
       <!-- Nav-->
       <div class="form-navigation">
         <button type="button" id="prevBtn" onclick="changeStep(-1)" class="secondary" style="display:none;">Previous</button>
         <button type="button" id="nextBtn" class="primary" onclick="changeStep(1)">Next</button>
         <button type="submit" id="submitBtn" class="primary hidden">Review & Continue to Payment →</button>
-    </div>
-  </form>
+      </div>
+    </form>
 
     <footer>
-      Tel: (520) 838-3913 • Email: info@tucsonmariachi.org
+      Tel: (520) 838-3913 | Email: info@tucsonmariachi.org
       <div class="color-bar" style="margin-top: 1rem; margin-bottom: 0rem;"></div>
     </footer>
 
   </div>
 
   <script>
-  let rowCounter = 0;
+let rowCounter = 0;
 
-  function updateGenerateButtonLabel() {
-    const count = document.getElementById('initial_count').value || 1;
-    document.getElementById('generateRowsBtn').textContent = `Generate ${count} row${count == 1 ? '' : 's'}`;
-  }
-  updateGenerateButtonLabel();
+const steps = document.querySelectorAll('.step');
+const totalSteps = steps.length;
+let currentStepIndex = 0;
 
-  function generateRows() {
-    const count = parseInt(document.getElementById('initial_count').value) || 10;
-    const tbody = document.querySelector('#participants tbody');
-    tbody.innerHTML = '';
-    rowCounter = 0;
-    for (let i = 0; i < count; i++) addRow();
-  }
+// ───────────────
+//row management
+// ────────────────
+function addRow() {
+  rowCounter++;
+  const tbody = document.querySelector('#participants tbody');
+  const tr = document.createElement('tr');
+  tr.className = (rowCounter % 2 === 0) ? 'row-even' : 'row-odd';
 
-  function addRow() {
-    rowCounter++;
-    const tbody = document.querySelector('#participants tbody');
-    const tr = document.createElement('tr');
-    tr.className = (rowCounter % 2 === 0) ? 'row-even' : 'row-odd';
-
-    tr.innerHTML = `
-      <td>${rowCounter}</td>
-      <td><input type="text" name="performers[${rowCounter}][first_name]" required></td>
-      <td><input type="text" name="performers[${rowCounter}][last_name]" required></td>
-      <td><input type="number" name="performers[${rowCounter}][age]" min="1" max="99" required></td>
-      <td>
-        <select name="performers[${rowCounter}][gender]" required>
-          <option value="">—</option><option>Male</option><option>Female</option>
-        </select>
-      </td>
-      <td>
-        <select name="performers[${rowCounter}][grade]" required>
-          <option value="">—</option>
-          <option>Elementary School</option><option>Middle School</option><option>High School</option><option>College</option><option>N/A</option>
-        </select>
-      </td>
-      <td>
-        <select name="performers[${rowCounter}][race]" required>
-          <option value="">—</option>
-          <option>African American</option><option>Asian American</option><option>Hispanic</option>
-          <option>Mexican American</option><option>Native American</option><option>White</option><option>Other</option>
-        </select>
-      </td>
-      <td>
-        <select name="performers[${rowCounter}][class]" class="instrument" required>
-          <option value="">—</option>
-          <option>Guitar</option><option>Guitarron</option><option>Harp</option>
-          <option>Trumpet</option><option>Vihuela</option><option>Violin</option><option>Voice</option>
-        </select>
-      </td>
-      <td>
-        <select name="performers[${rowCounter}][level]" class="level" required>
-          <option value="">—</option>
-          <option value="I">I ($115)</option>
-          <option value="II">II ($115)</option>
-          <option value="III">III ($115)</option>
-          <option value="Master">Master ($165)</option>
-        </select>
-      </td>
-      <td class="cost-cell">$0.00</td>
-    `;
-
-    tbody.appendChild(tr);
-
-    const instrSelect = tr.querySelector('.instrument');
-    const levelSelect = tr.querySelector('.level');
-    const costCell = tr.querySelector('.cost-cell');
-
-    function updateLevelOptions() {
-      const isVoice = instrSelect.value === 'Voice';
-      const currentLevel = levelSelect.value;
-      levelSelect.innerHTML = `
-        <option value="">—</option>
+  tr.innerHTML = `
+    <td>${rowCounter}</td>
+    <td><input type="text" name="performers[${rowCounter}][first_name]" required></td>
+    <td><input type="text" name="performers[${rowCounter}][last_name]" required></td>
+    <td><input type="number" name="performers[${rowCounter}][age]" min="1" max="99" required></td>
+    <td>
+      <select name="performers[${rowCounter}][gender]" required>
+        <option value="">-</option><option>Male</option><option>Female</option>
+      </select>
+    </td>
+    <td>
+      <select name="performers[${rowCounter}][grade]" required>
+        <option value="">-</option>
+        <option>Elementary School</option><option>Middle School</option><option>High School</option><option>College</option><option>N/A</option>
+      </select>
+    </td>
+    <td>
+      <select name="performers[${rowCounter}][race]" required>
+        <option value="">-</option>
+        <option>African American</option><option>Asian American</option><option>Hispanic</option>
+        <option>Mexican American</option><option>Native American</option><option>White</option><option>Other</option>
+      </select>
+    </td>
+    <td>
+      <select name="performers[${rowCounter}][class]" class="instrument" required>
+        <option value="">-</option>
+        <option>Guitar</option><option>Guitarron</option><option>Harp</option>
+        <option>Trumpet</option><option>Vihuela</option><option>Violin</option><option>Voice</option>
+      </select>
+    </td>
+    <td>
+      <select name="performers[${rowCounter}][level]" class="level" required>
+        <option value="">-</option>
         <option value="I">I ($115)</option>
         <option value="II">II ($115)</option>
         <option value="III">III ($115)</option>
-        <option value="Master">Master ($${isVoice ? '115' : '165'})</option>
-      `;
-      if (["I", "II", "III", "Master"].includes(currentLevel)) levelSelect.value = currentLevel;
-    }
+        <option value="Master">Master ($165)</option>
+      </select>
+    </td>
+    <td class="cost-cell">$0.00</td>
+  `;
 
-    function updateCost() {
-      const instr = instrSelect.value;
-      const lvl = levelSelect.value;
-      let cost = 0;
-      if (["I", "II", "III"].includes(lvl)) cost = 115;
-      else if (lvl === "Master") cost = (instr === "Voice") ? 115 : 165;
-      costCell.textContent = `$${cost}.00`;
-      calculateGrandTotal();
-    }
+  tbody.appendChild(tr);
 
-    instrSelect.addEventListener('change', () => { updateLevelOptions(); updateCost(); });
-    levelSelect.addEventListener('change', updateCost);
-    updateLevelOptions();
+  const instrSelect = tr.querySelector('.instrument');
+  const levelSelect = tr.querySelector('.level');
+  const costCell = tr.querySelector('.cost-cell');
+
+  function updateLevelOptions() {
+    const isVoice = instrSelect.value === 'Voice';
+    const currentLevel = levelSelect.value;
+    levelSelect.innerHTML = `
+      <option value="">-</option>
+      <option value="I">I ($115)</option>
+      <option value="II">II ($115)</option>
+      <option value="III">III ($115)</option>
+      <option value="Master">Master ($${isVoice ? '115' : '165'})</option>
+    `;
+    if (["I", "II", "III", "Master"].includes(currentLevel)) levelSelect.value = currentLevel;
   }
 
-  function calculateGrandTotal() {
-    let total = 0;
-    document.querySelectorAll('.cost-cell').forEach(cell => {
-      total += parseFloat(cell.textContent.replace(/[$\s]/g, '')) || 0;
-    });
-    document.getElementById('total_cost').value = total;
+  function updateCost() {
+    const instr = instrSelect.value;
+    const lvl = levelSelect.value;
+    let cost = 0;
+    if (["I", "II", "III"].includes(lvl)) cost = 115;
+    else if (lvl === "Master") cost = (instr === "Voice") ? 115 : 165;
+    costCell.textContent = `$${cost}.00`;
+    calculateGrandTotal();
   }
 
-  const steps = document.querySelectorAll('.step');
-  const totalSteps = steps.length;
-  let currentStepIndex = 0;
-
-  function showStep(index) {
-    steps.forEach((s, i) => s.classList.toggle('active', i === index));
-    document.getElementById('current-step').textContent = index + 1;
-    document.getElementById('prevBtn').style.display = index === 0 ? 'none' : 'inline-block';
-    document.getElementById('nextBtn').classList.toggle('hidden', index === totalSteps - 1);
-    document.getElementById('submitBtn').classList.toggle('hidden', index !== totalSteps - 1);
-  }
-
-  function changeStep(delta) {
-    if (delta > 0) {   
-        const currentStep = steps[currentStepIndex];
-        let isValid = true;
-
-        currentStep.querySelectorAll('[required]').forEach(el => {
-            if (el.closest('.hidden') || el.offsetParent === null) return;
-
-            if (el.type === 'radio') {
-                const group = currentStep.querySelectorAll(`input[name="${el.name}"]`);
-                const checked = Array.from(group).some(r => r.checked);
-                if (!checked) isValid = false;
-            } else if (!el.value.trim() && el.type !== 'checkbox') {
-                isValid = false;
-            }
-
-            if (!isValid) el.style.outline = '2px solid #e74c3c';
-            else el.style.outline = '';
-        });
-        if (currentStepIndex === 0) {  
-        }
-        if (!isValid) {
-            alert("Please complete all required fields on this page.");
-            return;
-        }
-    }
-    currentStepIndex += delta;
-    showStep(currentStepIndex);
+  instrSelect.addEventListener('change', () => { updateLevelOptions(); updateCost(); });
+  levelSelect.addEventListener('change', updateCost);
+  updateLevelOptions();
 }
 
-  function validateShowcaseDuration() {
-    const wantsShowcase = document.querySelector('input[name="showcase_performance"]:checked')?.value === 'yes';
-    if (!wantsShowcase) return true;
-    const totalSec = parseInt(document.getElementById('showcase_total_seconds')?.value) || 0;
-    if (totalSec > 540) {
-      alert("Showcase total duration exceeds 9 minutes (540 seconds). Please adjust the song lengths before continuing.");
-      return false;
-    }
-    return true;
+function calculateGrandTotal() {
+  let total = 0;
+  document.querySelectorAll('.cost-cell').forEach(cell => {
+    total += parseFloat(cell.textContent.replace(/[$\s]/g, '')) || 0;
+  });
+  document.getElementById('total_cost').value = total;
+}
+
+// ────────────────────
+// nav and validation
+// ────────────────────
+function showStep(index) {
+  steps.forEach((s, i) => s.classList.toggle('active', i === index));
+  document.getElementById('current-step').textContent = index + 1;
+  document.getElementById('prevBtn').style.display = index === 0 ? 'none' : 'inline-block';
+  document.getElementById('nextBtn').classList.toggle('hidden', index === totalSteps - 1);
+  document.getElementById('submitBtn').classList.toggle('hidden', index !== totalSteps - 1);
+}
+
+function changeStep(delta) {
+  if (delta > 0) {   
+      const currentStep = steps[currentStepIndex];
+      let isValid = true;
+
+      currentStep.querySelectorAll('[required]').forEach(el => {
+          if (el.closest('.hidden') || el.offsetParent === null) return;
+
+          if (el.type === 'radio') {
+              const group = currentStep.querySelectorAll(`input[name="${el.name}"]`);
+              const checked = Array.from(group).some(r => r.checked);
+              if (!checked) isValid = false;
+          } else if (!el.value.trim() && el.type !== 'checkbox') {
+              isValid = false;
+          }
+
+          if (!isValid) el.style.outline = '2px solid #e74c3c';
+          else el.style.outline = '';
+      });
+      if (!isValid) {
+          alert("Please complete all required fields on this page.");
+          return;
+      }
   }
+  currentStepIndex += delta;
+  showStep(currentStepIndex);
+}
 
-  const showcaseRadios = document.querySelectorAll('input[name="showcase_performance"]');
-  const exclusionRow = document.getElementById('competition-exclusion-row');
-
-  function toggleCompetitionExclusion() {
-    const wantsShowcase = document.querySelector('input[name="showcase_performance"]:checked')?.value === 'Yes';
-    
-    if (wantsShowcase) {
-      exclusionRow.classList.remove('hidden');
-    } else {
-      exclusionRow.classList.add('hidden');
-      exclusionRow.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
-    }
+function validateShowcaseDuration() {
+  const wantsShowcase = document.querySelector('input[name="showcase_performance"]:checked')?.value === 'yes';
+  if (!wantsShowcase) return true;
+  const totalSec = parseInt(document.getElementById('showcase_total_seconds')?.value) || 0;
+  if (totalSec > 540) {
+    alert("Showcase total duration exceeds 9 minutes (540 seconds). Please adjust the song lengths before continuing.");
+    return false;
   }
+  return true;
+}
 
-  toggleCompetitionExclusion();
+// ────────────────────────────
+// visibility helpers
+// ────────────────────────────
+const showcaseRadios = document.querySelectorAll('input[name="showcase_performance"]');
+const exclusionRow = document.getElementById('competition-exclusion-row');
 
-  showcaseRadios.forEach(radio => {
-    radio.addEventListener('change', toggleCompetitionExclusion);
+function toggleCompetitionExclusion() {
+  const wantsShowcase = document.querySelector('input[name="showcase_performance"]:checked')?.value === 'Yes';
+  
+  if (wantsShowcase) {
+    exclusionRow.classList.remove('hidden');
+  } else {
+    exclusionRow.classList.add('hidden');
+    exclusionRow.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+  }
+}
+
+const hotelRadios = document.querySelectorAll('input[name="hotel"]');
+const hotelDetails = document.getElementById('hotel-details-container');
+const hotelQuestionLabel = document.getElementById('hotel-question-label');
+
+function toggleHotelDetails() {
+  const selected = document.querySelector('input[name="hotel"]:checked');
+  const show = selected && selected.value === 'yes';
+  
+  hotelDetails.style.display = show ? 'block' : 'none';
+  
+  if (!show) {
+    document.getElementById('hotel_name').value = '';
+    document.getElementById('hotel_nights').value = '';
+  }
+}
+
+// ───────────────────────
+//Showcase song management
+// ─────────────────────────
+const songsSection = document.getElementById('showcase-songs-section');
+const songsTbody = document.getElementById('songs-tbody');
+const totalDurationEl = document.getElementById('total-song-duration');
+const totalSecondsEl = document.getElementById('total-seconds');
+const warningEl = document.getElementById('duration-warning');
+const totalSecondsHidden = document.getElementById('showcase_total_seconds');
+
+function generateSongRows() {
+  songsTbody.innerHTML = '';
+  for (let i = 1; i <= 3; i++) {
+    const tr = document.createElement('tr');
+    tr.className = (i % 2 === 0) ? 'row-even' : 'row-odd';
+
+    tr.innerHTML = `
+      <td style="text-align:center;">${i}</td>
+      <td>
+        <input type="text" name="showcase_songs[${i}][title]" 
+               placeholder="Enter song title" style="width:100%;" maxlength="120">
+      </td>
+      <td style="text-align:center; font-family: monospace;" id="formatted-${i}">
+        00:00
+      </td>
+      <td style="text-align:center;">
+        <input type="number" name="showcase_songs[${i}][seconds]" 
+               class="song-seconds" min="0" max="540" step="1" value="0"
+               style="width:90px; text-align:center;">
+      </td>
+    `;
+    songsTbody.appendChild(tr);
+
+    const input = tr.querySelector('.song-seconds');
+    input.addEventListener('input', updateFromSeconds);
+    input.addEventListener('change', updateFromSeconds);
+  }
+  updateTotalDuration();
+}
+
+function toggleShowcaseSongs() {
+  const wantsShowcase = document.querySelector('input[name="showcase_performance"]:checked')?.value === 'Yes';
+  if (wantsShowcase) {
+    songsSection.classList.remove('hidden');
+    if (songsTbody.children.length === 0) {
+      generateSongRows();
+    }
+  } else {
+    songsSection.classList.add('hidden');
+  }
+}
+
+function secondsToMMSS(total) {
+  const min = Math.floor(total / 60);
+  const sec = total % 60;
+  return `${min.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
+}
+
+function updateFromSeconds(e) {
+  const row = e.target.closest('tr');
+  const formattedCell = row.querySelector('[id^="formatted-"]');
+  const seconds = parseInt(e.target.value) || 0;
+  formattedCell.textContent = secondsToMMSS(seconds);
+  updateTotalDuration();
+}
+
+function updateTotalDuration() {
+  let totalSec = 0;
+  document.querySelectorAll('.song-seconds').forEach(el => {
+    totalSec += parseInt(el.value) || 0;
   });
 
+  totalDurationEl.textContent = secondsToMMSS(totalSec);
+  totalSecondsEl.textContent = totalSec;
+  totalSecondsHidden.value = totalSec;
 
-  const hotelRadios = document.querySelectorAll('input[name="hotel"]');
-  const hotelContainer = document.getElementById('hotel-name-container');
-
-  function toggleHotelField() {
-    const selected = document.querySelector('input[name="hotel"]:checked');
-    if (selected && selected.value === 'yes') {
-      hotelContainer.style.display = 'block';
-    } else {
-      hotelContainer.style.display = 'none';
-      document.getElementById('hotel_name').value = '';
-    }
+  if (totalSec > 540) {
+    warningEl.style.display = 'inline';
+    totalDurationEl.style.color = '#d32f2f';
+    totalSecondsEl.style.color = '#d32f2f';
+  } else {
+    warningEl.style.display = 'none';
+    totalDurationEl.style.color = '';
+    totalSecondsEl.style.color = '';
   }
-  toggleHotelField();
-  hotelRadios.forEach(radio => radio.addEventListener('change', toggleHotelField));
+}
 
-  const assistantRadios = document.querySelectorAll('input[name="has_assistant_director"]');
-  const assistantSection = document.getElementById('assistant-director-fields');
-
-  function toggleAssistant() {
-    const isYes = document.querySelector('input[name="has_assistant_director"]:checked')?.value === 'yes';
-    assistantSection.style.display = isYes ? '' : 'none';
-    if (!isYes) {
-      assistantSection.querySelectorAll('input, select').forEach(el => el.value = '');
-    }
+// ────────────────────────────
+//Main form state management
+// ────────────────────────────
+function updateHotelLabel() {
+  const isIndividual = document.querySelector('input[name="registration_type"]:checked')?.value === 'individual';
+  if (hotelQuestionLabel) {
+    hotelQuestionLabel.textContent = isIndividual 
+      ? "Will you be staying at a hotel during the conference?"
+      : "Will you / your group be staying at a hotel during the conference?";
   }
-  toggleAssistant();
-  assistantRadios.forEach(radio => radio.addEventListener('change', toggleAssistant));
+}
+
+function updateFormForIndividual() {
+  const isIndividual = document.querySelector('input[name="registration_type"]:checked')?.value === 'individual';
+
+  const groupOnlyRequiredFields = [
+      ...document.querySelectorAll('input[name="showcase_performance"]'),
+      ...document.querySelectorAll('input[name="garibaldi_performance"]'),
+      ...document.querySelectorAll('input[name="is_director"]'),
+      document.querySelector('input[name="director_first"]'),
+      document.querySelector('input[name="director_last"]'),
+      document.querySelector('input[name="email"]'),     
+      document.querySelector('input[name="street_address"]'),
+      document.querySelector('input[name="city"]'),
+      document.querySelector('select[name="state"]'),
+      document.querySelector('input[name="zip_code"]'),
+      document.querySelector('input[name="cell_phone"]'),
+      
+      document.querySelector('input[name="has_assistant_director"]'),
+  ].filter(el => el !== null);
+
+  groupOnlyRequiredFields.forEach(field => {
+      if (isIndividual) {
+          field.removeAttribute('required');
+      } else {
+          field.setAttribute('required', 'required');
+      }
+  });
+
+  const toHide = [
+      document.querySelector('tr:has(input[name="garibaldi_performance"])'),
+      document.querySelector('tr:has(input[name="group_type"])'),
+      document.querySelector('tr:has(input[name="showcase_performance"])'),
+      document.getElementById('competition-exclusion-row'),
+      document.querySelector('tr:has(input[name="school_name"])'),
+      document.querySelector('div[style*="background: #f0fdf4"]'), 
+      document.querySelector('tr:has(input[name="director_first"])'),
+      document.querySelector('tr:has(input[name="email"])'),
+      document.querySelector('tr:has(input[name="street_address"])'),
+      document.querySelector('tr:has(input[name="city"])'),
+      document.querySelector('tr:has(input[name="zip_code"])'),
+      document.querySelector('tr:has(input[name="cell_phone"])'),
+      document.querySelector('tr:has(input[name="has_assistant_director"])'),
+      document.getElementById('assistant-director-fields')
+  ].filter(el => el);
+
+  toHide.forEach(el => {
+      el.style.display = isIndividual ? 'none' : '';
+      if (isIndividual) {
+          el.querySelectorAll('input, select').forEach(field => {
+              if (field.type === 'radio' || field.type === 'checkbox') {
+                  field.checked = false;
+              } else if (field.tagName === 'SELECT') {
+                  field.selectedIndex = 0;
+              } else {
+                  field.value = '';
+              }
+          });
+      }
+  });
+
+  const songsSection = document.getElementById('showcase-songs-section');
+  if (songsSection) {
+      songsSection.classList.toggle('hidden', isIndividual);
+      
+      if (isIndividual && !songsSection.classList.contains('hidden')) {
+          document.querySelectorAll('#songs-tbody input').forEach(inp => {
+              inp.value = '';
+          });
+          updateTotalDuration();
+      }
+  }
+
+  const participantHeader = document.querySelector('#participants thead tr');
+  if (participantHeader && isIndividual) {
+      participantHeader.querySelectorAll('th')[9].textContent = 'Fee'; 
+  }
+
+  updateHotelLabel(); 
+}
+
+// ────────────────
+// event listeners
+// ─────────────────
+document.querySelectorAll('input[name="registration_type"]').forEach(radio => {
+  radio.addEventListener('change', () => {
+    updateFormForIndividual();
+  });
+});
+
+showcaseRadios.forEach(radio => {
+  radio.addEventListener('change', toggleShowcaseSongs);
+});
+
+showcaseRadios.forEach(radio => {
+  radio.addEventListener('change', toggleCompetitionExclusion);
+});
+
+hotelRadios.forEach(radio => radio.addEventListener('change', toggleHotelDetails));
+
+const originalShowStep = showStep;
+showStep = function(index) {
+  originalShowStep(index);
+  if (index === 0 || index === 1) {
+    updateFormForIndividual();
+  }
+};
+
+// ────────────────
+// initialization
+// ─────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  toggleCompetitionExclusion();
+  toggleHotelDetails();
+
+  const radios = document.querySelectorAll('input[name="registration_type"]');
+  const label = document.getElementById('registrant-name-label');
+  const input = document.getElementById('registrant-name');
 
   const isDirectorRadios = document.querySelectorAll('input[name="is_director"]');
   const registrantFields = document.getElementById('registrant-fields');
@@ -884,140 +1078,27 @@ if (file_exists(__DIR__ . "/.reg-closed")) {
     radio.addEventListener('change', toggleRegistrantFields);
   });
 
-  const songsSection = document.getElementById('showcase-songs-section');
-  const songsTbody = document.getElementById('songs-tbody');
-  const totalDurationEl = document.getElementById('total-song-duration');
-  const totalSecondsEl = document.getElementById('total-seconds');
-  const warningEl = document.getElementById('duration-warning');
-  const totalSecondsHidden = document.getElementById('showcase_total_seconds');
-
-  function toggleShowcaseSongs() {
-    const wantsShowcase = document.querySelector('input[name="showcase_performance"]:checked')?.value === 'Yes';
-    if (wantsShowcase) {
-      songsSection.classList.remove('hidden');
-      if (songsTbody.children.length === 0) {
-        generateSongRows();
-      }
-    } else {
-      songsSection.classList.add('hidden');
-    }
+  function updateLabelAndPrefix() {
+    const isIndividual = document.querySelector('input[name="registration_type"]:checked')?.value === 'individual';
+    label.textContent = isIndividual ? "Individual's Full Name:" : "Group Name:";
   }
 
-  function generateSongRows() {
-    songsTbody.innerHTML = '';
-    for (let i = 1; i <= 3; i++) {
-      const tr = document.createElement('tr');
-      tr.className = (i % 2 === 0) ? 'row-even' : 'row-odd';
+  updateLabelAndPrefix();
+  radios.forEach(radio => radio.addEventListener('change', updateLabelAndPrefix));
 
-      tr.innerHTML = `
-        <td style="text-align:center;">${i}</td>
-        <td>
-          <input type="text" name="showcase_songs[${i}][title]" 
-                 placeholder="Enter song title" style="width:100%;" maxlength="120">
-        </td>
-        <td style="text-align:center; font-family: monospace;" id="formatted-${i}">
-          00:00
-        </td>
-        <td style="text-align:center;">
-          <input type="number" name="showcase_songs[${i}][seconds]" 
-                 class="song-seconds" min="0" max="540" step="1" value="0"
-                 style="width:90px; text-align:center;">
-        </td>
-      `;
-      songsTbody.appendChild(tr);
-
-      const input = tr.querySelector('.song-seconds');
-      input.addEventListener('input', updateFromSeconds);
-      input.addEventListener('change', updateFromSeconds);
-    }
-    updateTotalDuration();
-  }
-
-  function secondsToMMSS(total) {
-    const min = Math.floor(total / 60);
-    const sec = total % 60;
-    return `${min.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
-  }
-
-  function updateFromSeconds(e) {
-    const row = e.target.closest('tr');
-    const formattedCell = row.querySelector('[id^="formatted-"]');
-    const seconds = parseInt(e.target.value) || 0;
-    formattedCell.textContent = secondsToMMSS(seconds);
-    updateTotalDuration();
-  }
-
-  function updateTotalDuration() {
-    let totalSec = 0;
-    document.querySelectorAll('.song-seconds').forEach(el => {
-      totalSec += parseInt(el.value) || 0;
-    });
-
-    totalDurationEl.textContent = secondsToMMSS(totalSec);
-    totalSecondsEl.textContent = totalSec;
-    totalSecondsHidden.value = totalSec;
-
-    if (totalSec > 540) {
-      warningEl.style.display = 'inline';
-      totalDurationEl.style.color = '#d32f2f';
-      totalSecondsEl.style.color = '#d32f2f';
-    } else {
-      warningEl.style.display = 'none';
-      totalDurationEl.style.color = '';
-      totalSecondsEl.style.color = '';
-    }
-  }
-
-  showcaseRadios.forEach(radio => {
-    radio.addEventListener('change', toggleShowcaseSongs);
+  input.addEventListener('input', () => {
+    const isIndividual = document.querySelector('input[name="registration_type"]:checked')?.value === 'individual';
+    if (isIndividual) ensurePrefix();
   });
-
-  document.addEventListener('DOMContentLoaded', () => {
-    const radios = document.querySelectorAll('input[name="registration_type"]');
-    const label = document.getElementById('registrant-name-label');
-    const input = document.getElementById('registrant-name');
-    const PREFIX = 'INDIVIDUAL - ';
-    const PREFIX_LENGTH = PREFIX.length;
-
-    function ensurePrefix() {
-      const isIndividual = document.querySelector('input[name="registration_type"]:checked')?.value === 'individual';
-      let val = input.value;
-
-      if (isIndividual) {
-        if (!val.startsWith(PREFIX)) {
-          const cursorPos = input.selectionStart;
-          const wasEmpty = val === '';
-          input.value = PREFIX + val;
-          if (wasEmpty) {
-            input.setSelectionRange(PREFIX_LENGTH, PREFIX_LENGTH);
-          } else {
-            input.setSelectionRange(cursorPos + PREFIX_LENGTH, cursorPos + PREFIX_LENGTH);
-          }
-        }
-      } else {
-        if (val.startsWith(PREFIX)) {
-          input.value = val.substring(PREFIX_LENGTH).trimStart();
-        }
-      }
-    }
-
-    function updateLabelAndPrefix() {
-      const isIndividual = document.querySelector('input[name="registration_type"]:checked')?.value === 'individual';
-      label.textContent = isIndividual ? "Individual's Full Name:" : "Group Name:";
-      ensurePrefix();
-    }
-
-    updateLabelAndPrefix();
-    radios.forEach(radio => radio.addEventListener('change', updateLabelAndPrefix));
-    input.addEventListener('input', () => {
-      const isIndividual = document.querySelector('input[name="registration_type"]:checked')?.value === 'individual';
-      if (isIndividual) ensurePrefix();
-    });
-    input.addEventListener('focus', ensurePrefix);
-  });
+  input.addEventListener('focus', ensurePrefix);
 
   toggleShowcaseSongs();
+  updateFormForIndividual();
   showStep(0);
-  </script>
+  addRow();
+});
+
+</script>
+
 </body>
 </html>
