@@ -345,7 +345,6 @@ if (file_exists(__DIR__ . "/.reg-closed")) {
           </div>
         </div>
 
-        <!-- Hidden group_type field that gets set to Individual when needed -->
         <input type="hidden" name="group_type" id="group_type_hidden" value="">
 
         <table class="form-top">
@@ -425,11 +424,11 @@ if (file_exists(__DIR__ . "/.reg-closed")) {
           </tr>
         </table>
 
-        <div style="margin-bottom: 1.8rem; padding: 16px; background: #f0fdf4; border-radius: 10px; border: 1px solid #bbf7d0;">
+        <div class="director-question-section" style="margin-top: 1.3rem; padding: 16px; background: #f0fdf4; border-radius: 10px; border: 1px solid #bbf7d0;">
           <strong>Are you the director of this group?</strong>
           <div class="radio-group" style="margin-top: 12px;">
-            <label><input type="radio" name="is_director" value="yes" checked required> Yes, I am the director</label>
-            <label><input type="radio" name="is_director" value="no"> No, someone else is filling this out</label>
+            <label><input type="radio" name="is_director" value="yes" checked required> Yes,<b>I am</b> the director of this group</label>
+            <label><input type="radio" name="is_director" value="no"> No,<b>I am not</b> the director of this group</label>
           </div>
 
           <div id="registrant-fields" style="display: none; margin-top: 1.5rem;">
@@ -677,93 +676,93 @@ let currentStepIndex = 0;
 //row management
 // ────────────────
 function addRow() {
-  rowCounter++;
-  const tbody = document.querySelector('#participants tbody');
-  const tr = document.createElement('tr');
-  tr.className = (rowCounter % 2 === 0) ? 'row-even' : 'row-odd';
+      rowCounter++;
+      const tbody = document.querySelector('#participants tbody');
+      const tr = document.createElement('tr');
+      tr.className = (rowCounter % 2 === 0) ? 'row-even' : 'row-odd';
 
-  tr.innerHTML = `
-    <td>${rowCounter}</td>
-    <td><input type="text" name="performers[${rowCounter}][first_name]" required></td>
-    <td><input type="text" name="performers[${rowCounter}][last_name]" required></td>
-    <td><input type="number" name="performers[${rowCounter}][age]" min="1" max="99" required></td>
-    <td>
-      <select name="performers[${rowCounter}][gender]" required>
-        <option value="">-</option><option>Male</option><option>Female</option>
-      </select>
-    </td>
-    <td>
-      <select name="performers[${rowCounter}][grade]" required>
-        <option value="">-</option>
-        <option>Elementary School</option><option>Middle School</option><option>High School</option><option>College</option><option>N/A</option>
-      </select>
-    </td>
-    <td>
-      <select name="performers[${rowCounter}][race]" required>
-        <option value="">-</option>
-        <option>African American</option><option>Asian American</option><option>Hispanic</option>
-        <option>Mexican American</option><option>Native American</option><option>White</option><option>Other</option>
-      </select>
-    </td>
-    <td>
-      <select name="performers[${rowCounter}][class]" class="instrument" required>
-        <option value="">-</option>
-        <option>Guitar</option><option>Guitarron</option><option>Harp</option>
-        <option>Trumpet</option><option>Vihuela</option><option>Violin</option><option>Voice</option>
-      </select>
-    </td>
-    <td>
-      <select name="performers[${rowCounter}][level]" class="level" required>
-        <option value="">-</option>
-        <option value="I">I ($115)</option>
-        <option value="II">II ($115)</option>
-        <option value="III">III ($115)</option>
-        <option value="Master">Master ($165)</option>
-      </select>
-    </td>
-    <td class="cost-cell">$0.00</td>
-  `;
+      tr.innerHTML = `
+        <td>${rowCounter}</td>
+        <td><input type="text" name="performers[${rowCounter}][first_name]" required></td>
+        <td><input type="text" name="performers[${rowCounter}][last_name]" required></td>
+        <td><input type="number" name="performers[${rowCounter}][age]" min="1" max="99" required></td>
+        <td>
+          <select name="performers[${rowCounter}][gender]" required>
+            <option value="">-</option><option>Male</option><option>Female</option>
+          </select>
+        </td>
+        <td>
+          <select name="performers[${rowCounter}][grade]" required>
+            <option value="">-</option>
+            <option>Elementary School</option><option>Middle School</option><option>High School</option><option>College</option><option>N/A</option>
+          </select>
+        </td>
+        <td>
+          <select name="performers[${rowCounter}][race]" required>
+            <option value="">-</option>
+            <option>African American</option><option>Asian American</option><option>Hispanic</option>
+            <option>Mexican American</option><option>Native American</option><option>White</option><option>Other</option>
+          </select>
+        </td>
+        <td>
+          <select name="performers[${rowCounter}][class]" class="instrument" required>
+            <option value="">-</option>
+            <option>Guitar</option><option>Guitarron</option><option>Harp</option>
+            <option>Trumpet</option><option>Vihuela</option><option>Violin</option><option>Voice</option>
+          </select>
+        </td>
+        <td>
+          <select name="performers[${rowCounter}][level]" class="level" required>
+            <option value="">-</option>
+            <option value="I">I ($115)</option>
+            <option value="II">II ($115)</option>
+            <option value="III">III ($115)</option>
+            <option value="Master">Master ($165)</option>
+          </select>
+        </td>
+        <td class="cost-cell">$0.00</td>
+      `;
 
-  tbody.appendChild(tr);
+      tbody.appendChild(tr);
 
-  const instrSelect = tr.querySelector('.instrument');
-  const levelSelect = tr.querySelector('.level');
-  const costCell = tr.querySelector('.cost-cell');
+      const instrSelect = tr.querySelector('.instrument');
+      const levelSelect = tr.querySelector('.level');
+      const costCell = tr.querySelector('.cost-cell');
 
-  function updateLevelOptions() {
-    const isVoice = instrSelect.value === 'Voice';
-    const currentLevel = levelSelect.value;
-    levelSelect.innerHTML = `
-      <option value="">-</option>
-      <option value="I">I ($115)</option>
-      <option value="II">II ($115)</option>
-      <option value="III">III ($115)</option>
-      <option value="Master">Master ($${isVoice ? '115' : '165'})</option>
-    `;
-    if (["I", "II", "III", "Master"].includes(currentLevel)) levelSelect.value = currentLevel;
-  }
+      function updateLevelOptions() {
+        const isVoice = instrSelect.value === 'Voice';
+        const currentLevel = levelSelect.value;
+        levelSelect.innerHTML = `
+          <option value="">-</option>
+          <option value="I">I ($115)</option>
+          <option value="II">II ($115)</option>
+          <option value="III">III ($115)</option>
+          <option value="Master">Master ($${isVoice ? '115' : '165'})</option>
+        `;
+        if (["I", "II", "III", "Master"].includes(currentLevel)) levelSelect.value = currentLevel;
+      }
 
-  function updateCost() {
-    const instr = instrSelect.value;
-    const lvl = levelSelect.value;
-    let cost = 0;
-    if (["I", "II", "III"].includes(lvl)) cost = 115;
-    else if (lvl === "Master") cost = (instr === "Voice") ? 115 : 165;
-    costCell.textContent = `$${cost}.00`;
-    calculateGrandTotal();
-  }
+      function updateCost() {
+        const instr = instrSelect.value;
+        const lvl = levelSelect.value;
+        let cost = 0;
+        if (["I", "II", "III"].includes(lvl)) cost = 115;
+        else if (lvl === "Master") cost = (instr === "Voice") ? 115 : 165;
+        costCell.textContent = `$${cost}.00`;
+        calculateGrandTotal();
+      }
 
-  instrSelect.addEventListener('change', () => { updateLevelOptions(); updateCost(); });
-  levelSelect.addEventListener('change', updateCost);
-  updateLevelOptions();
-}
+      instrSelect.addEventListener('change', () => { updateLevelOptions(); updateCost(); });
+      levelSelect.addEventListener('change', updateCost);
+      updateLevelOptions();
+    }
 
-function calculateGrandTotal() {
-  let total = 0;
-  document.querySelectorAll('.cost-cell').forEach(cell => {
-    total += parseFloat(cell.textContent.replace(/[$\s]/g, '')) || 0;
-  });
-  document.getElementById('total_cost').value = total;
+    function calculateGrandTotal() {
+      let total = 0;
+      document.querySelectorAll('.cost-cell').forEach(cell => {
+        total += parseFloat(cell.textContent.replace(/[$\s]/g, '')) || 0;
+      });
+      document.getElementById('total_cost').value = total;
 }
 
 // ────────────────────
@@ -821,7 +820,6 @@ function validateShowcaseDuration() {
 // ────────────────────────────
 const showcaseRadios = document.querySelectorAll('input[name="showcase_performance"]');
 const exclusionRow = document.getElementById('competition-exclusion-row');
-
 function toggleCompetitionExclusion() {
   const wantsShowcase = document.querySelector('input[name="showcase_performance"]:checked')?.value === 'Yes';
   
@@ -969,7 +967,6 @@ function setGroupTypeForIndividual() {
 
   if (isIndividual) {
     groupTypeHidden.value = 'Individual';
-    // Disable/uncheck visible group type radios (they're hidden anyway)
     groupTypeVisibleRadios.forEach(r => {
       r.checked = false;
       r.disabled = true;
@@ -1018,7 +1015,7 @@ function updateFormForIndividual() {
       document.querySelector('tr:has(input[name="showcase_performance"])'),
       document.getElementById('competition-exclusion-row'),
       document.querySelector('tr:has(input[name="school_name"])'),
-      document.querySelector('div[style*="background: #f0fdf4"]'), 
+      document.querySelector('.director-question-section'),
       document.querySelector('tr:has(input[name="director_first"])'),
       document.querySelector('tr:has(input[name="has_assistant_director"])'),
       document.getElementById('assistant-director-fields')
@@ -1061,7 +1058,7 @@ function updateFormForIndividual() {
 
 // ────────────────
 // event listeners
-// ─────────────────
+// ──────────────────
 document.querySelectorAll('input[name="registration_type"]').forEach(radio => {
   radio.addEventListener('change', () => {
     updateFormForIndividual();
@@ -1142,7 +1139,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function updateLabelAndPrefix() {
     const isIndividual = document.querySelector('input[name="registration_type"]:checked')?.value === 'individual';
-    label.textContent = isIndividual ? "Individual's Full Name:" : "Group Name:";
+    label.textContent = isIndividual ? "Individual's Full Name (person filling out this form):" : "Group Name:";
   }
 
   updateLabelAndPrefix();
