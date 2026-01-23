@@ -590,7 +590,7 @@ if (file_exists(__DIR__ . "/.reg-closed")) {
               <th>Instrument / Class</th>
               <th>Level</th>
               <th>Cost</th>
-              <th>Actions</th>
+              <th>–––</th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -641,7 +641,7 @@ if (file_exists(__DIR__ . "/.reg-closed")) {
               <input type="radio" name="payment_method" value="purchase_order">
               Pay by Purchase Order / Invoice
             </label>
-            <p style="margin-top: 16px; font-size: 0.95rem; color: #475569;">
+            <p id="purchase-order-info" style="margin-top: 16px; font-size: 0.95rem; color: #475569;">
             <strong>Purchase Order:</strong> Your group will receive a confirmation email with invoice details. 
             No payment is processed now - please submit PO/payment within the stated deadline.
             </p>
@@ -820,6 +820,21 @@ function toggleHotelDetails() {
     document.getElementById('hotel_nights').value = '';
   }
 }
+
+
+const paymentRadios = document.querySelectorAll('input[name="payment_method"]');
+const poInfo = document.getElementById('purchase-order-info');
+
+function togglePOInfo() {
+  const selectedMethod = document.querySelector('input[name="payment_method"]:checked')?.value;
+  poInfo.style.display = (selectedMethod === 'purchase_order') ? 'block' : 'none';
+}
+paymentRadios.forEach(radio => radio.addEventListener('change', () => {
+  togglePOInfo();
+  updatePaymentOptions(); // To prevent selection if individual
+}));
+togglePOInfo();
+
 
 // ───────────────────────
 //Showcase song management
@@ -1056,6 +1071,34 @@ function updateFormForIndividual() {
   }
 
   updateHotelLabel(); 
+
+  updatePaymentOptions();
+}
+
+// Add this function to handle payment options visibility
+function updatePaymentOptions() {
+  const isIndividual = document.querySelector('input[name="registration_type"]:checked')?.value === 'individual';
+  const poLabel = document.querySelector('label:has(input[value="purchase_order"])');
+  const poRadio = document.querySelector('input[value="purchase_order"]');
+  const ccRadio = document.querySelector('input[value="credit_card"]');
+  const poInfo = document.getElementById('purchase-order-info');
+
+  if (isIndividual) {
+    if (poLabel) poLabel.style.display = 'none';
+    if (poRadio) {
+      poRadio.disabled = true;
+      if (poRadio.checked) {
+        ccRadio.checked = true;
+      }
+    }
+    // Ensure PO info is hidden if individual
+    if (poInfo) poInfo.style.display = 'none';
+  } else {
+    if (poLabel) poLabel.style.display = '';
+    if (poRadio) poRadio.disabled = false;
+  }
+  // Call existing togglePOInfo to handle info visibility based on selection
+  togglePOInfo();
 }
 
 // ────────────────
@@ -1104,7 +1147,7 @@ document.getElementById('regForm').addEventListener('submit', function(e) {
 });
 
 // ────────────────
-// initialization
+// DOMContentLoaded
 // ─────────────────
 document.addEventListener('DOMContentLoaded', () => {
   toggleCompetitionExclusion();
@@ -1149,8 +1192,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function updateLabelAndPrefix() {
     const isIndividual = document.querySelector('input[name="registration_type"]:checked')?.value === 'individual';
-    label.textContent = isIndividual ? "Individual's Full Name (person filling out this form):" : "Group Name:";
-  }
+    if (isIndividual) {
+        label.innerHTML = "Individual's Full Name:<br><small>(person filling out this form)</small>";
+    } else {
+        label.textContent = "Group Name:";
+    }
+}
 
   updateLabelAndPrefix();
   radios.forEach(radio => radio.addEventListener('change', updateLabelAndPrefix));
@@ -1164,6 +1211,7 @@ document.addEventListener('DOMContentLoaded', () => {
   toggleShowcaseSongs();
   updateFormForIndividual();
   addRow();
+  updatePaymentOptions();
 });
 
 </script>
