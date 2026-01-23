@@ -250,6 +250,19 @@ if (file_exists(__DIR__ . "/.reg-closed")) {
       background: #004d00;
     }
 
+    button.remove-btn {
+      background: #dc2626;
+      color: white;
+      padding: 6px 12px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-radius: 6px;
+    }
+
+    button.remove-btn:hover {
+      background: #b91c1c;
+    }
+
     .form-navigation {
       text-align: center;
       margin: 44px 0 28px;
@@ -261,15 +274,6 @@ if (file_exists(__DIR__ . "/.reg-closed")) {
 
     .hidden { display: none !important; }
 
-    .step {
-      display: none;
-    }
-
-    .step.active {
-      display: block;
-      animation: fadeIn 0.4s ease-out;
-    }
-
     .color-bar {
       width: 100%;
       height: 20px;                  
@@ -280,11 +284,6 @@ if (file_exists(__DIR__ . "/.reg-closed")) {
       margin-bottom: 2rem;
       padding: 0;
       border: none;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to   { opacity: 1; transform: translateY(0); }
     }
 
     footer {
@@ -330,12 +329,10 @@ if (file_exists(__DIR__ . "/.reg-closed")) {
       2026 REGISTRATION FORM
     </div>
 
-    <div class="step-counter">Step <span id="current-step">1</span> of 4</div>
-
     <form method="post" action="process.php" id="regForm">
 
       <!-- PAGE 1 -->
-      <div class="step active card" id="step1">
+      <div class="card" id="step1">
         <h2>1. Registration Information</h2>
         <div style="margin: 1.5rem 0;">
           <strong>This registration is for:</strong>
@@ -458,7 +455,7 @@ if (file_exists(__DIR__ . "/.reg-closed")) {
       </div>
 
       <!-- PAGE 2 -->
-      <div class="step card" id="step2">
+      <div class="card" id="step2">
         <h2>2. Contact & Performance Preferences</h2>
         <table class="form-top">
           <tr>
@@ -576,11 +573,11 @@ if (file_exists(__DIR__ . "/.reg-closed")) {
       </div>
 
       <!--PAGE 3-->
-      <div class="step card" id="step3">
-        <h2>3. Participants</h2>
+      <div class="card" id="step3">
+        <h2 id="participants-header">3. Participants</h2>
 
         <table class="participant-table" id="participants">
-          <h4 style="color: black; font-weight: light;">Enter participants below:</h4>
+          <h4 style="color: black; font-weight: light;" id="enter-participants-text">Enter participants below:</h4>
           <thead>
             <tr>
               <th>•</th>
@@ -593,12 +590,13 @@ if (file_exists(__DIR__ . "/.reg-closed")) {
               <th>Instrument / Class</th>
               <th>Level</th>
               <th>Cost</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody></tbody>
         </table>
 
-        <button type="button" class="add" onclick="addRow()" style="margin-top: 1rem;">+ Add Participant</button>
+        <button type="button" class="add" onclick="addRow()" style="margin-top: 1rem;" id="add-participant-btn">+ Add Participant</button>
 
         <div id="showcase-songs-section" class="hidden" style="margin-top: 40px; padding-top: 24px; border-top: 2px solid #e0e0e0;">
           <h2 style="margin-bottom: 16px; color: #1e40af;">Showcase Performance - Song List</h2>
@@ -632,7 +630,7 @@ if (file_exists(__DIR__ . "/.reg-closed")) {
         <input type="hidden" name="total_cost" id="total_cost" value="0">
       </div>
 
-      <div class="step card" id="step4" style="margin: 40px 0 24px; padding: 24px; background: #f0f9ff; border-radius: 12px; border: 1px solid #bae6fd;">
+      <div class="card" id="step4" style="margin: 40px 0 24px; padding: 24px; background: #f0f9ff; border-radius: 12px; border: 1px solid #bae6fd;">
         <h2>4. Payment Information</h2>
           <div class="radio-group" style="font-size: 1.1rem;">
             <label style="margin-right: 48px;">
@@ -652,9 +650,7 @@ if (file_exists(__DIR__ . "/.reg-closed")) {
 
       <!-- Nav-->
       <div class="form-navigation">
-        <button type="button" id="prevBtn" onclick="changeStep(-1)" class="secondary" style="display:none;">Previous</button>
-        <button type="button" id="nextBtn" class="primary" onclick="changeStep(1)">Next</button>
-        <button type="submit" id="submitBtn" class="primary hidden">Review & Continue to Payment →</button>
+        <button type="submit" id="submitBtn" class="primary">Review & Continue to Payment →</button>
       </div>
     </form>
 
@@ -668,14 +664,16 @@ if (file_exists(__DIR__ . "/.reg-closed")) {
   <script>
 let rowCounter = 0;
 
-const steps = document.querySelectorAll('.step');
-const totalSteps = steps.length;
-let currentStepIndex = 0;
-
 // ───────────────
 //row management
 // ────────────────
 function addRow() {
+      const isIndividual = document.querySelector('input[name="registration_type"]:checked')?.value === 'individual';
+      if (isIndividual && rowCounter >= 1) {
+        alert("Individual registration allows only one participant.");
+        return;
+      }
+
       rowCounter++;
       const tbody = document.querySelector('#participants tbody');
       const tr = document.createElement('tr');
@@ -721,6 +719,7 @@ function addRow() {
           </select>
         </td>
         <td class="cost-cell">$0.00</td>
+        <td><button type="button" class="remove-btn" onclick="removeRow(this)">Remove</button></td>
       `;
 
       tbody.appendChild(tr);
@@ -757,51 +756,26 @@ function addRow() {
       updateLevelOptions();
     }
 
+function removeRow(btn) {
+  const tr = btn.closest('tr');
+  tr.remove();
+  rowCounter--;
+
+  // Re-number the rows
+  document.querySelectorAll('#participants tbody tr').forEach((row, index) => {
+    row.querySelector('td:first-child').textContent = index + 1;
+    row.className = ((index + 1) % 2 === 0) ? 'row-even' : 'row-odd';
+  });
+
+  calculateGrandTotal();
+}
+
     function calculateGrandTotal() {
       let total = 0;
       document.querySelectorAll('.cost-cell').forEach(cell => {
         total += parseFloat(cell.textContent.replace(/[$\s]/g, '')) || 0;
       });
       document.getElementById('total_cost').value = total;
-}
-
-// ────────────────────
-// nav and validation
-// ────────────────────
-function showStep(index) {
-  steps.forEach((s, i) => s.classList.toggle('active', i === index));
-  document.getElementById('current-step').textContent = index + 1;
-  document.getElementById('prevBtn').style.display = index === 0 ? 'none' : 'inline-block';
-  document.getElementById('nextBtn').classList.toggle('hidden', index === totalSteps - 1);
-  document.getElementById('submitBtn').classList.toggle('hidden', index !== totalSteps - 1);
-}
-
-function changeStep(delta) {
-  if (delta > 0) {   
-      const currentStep = steps[currentStepIndex];
-      let isValid = true;
-
-      currentStep.querySelectorAll('[required]').forEach(el => {
-          if (el.closest('.hidden') || el.offsetParent === null) return;
-
-          if (el.type === 'radio') {
-              const group = currentStep.querySelectorAll(`input[name="${el.name}"]`);
-              const checked = Array.from(group).some(r => r.checked);
-              if (!checked) isValid = false;
-          } else if (!el.value.trim() && el.type !== 'checkbox') {
-              isValid = false;
-          }
-
-          if (!isValid) el.style.outline = '2px solid #e74c3c';
-          else el.style.outline = '';
-      });
-      if (!isValid) {
-          alert("Please complete all required fields on this page.");
-          return;
-      }
-  }
-  currentStepIndex += delta;
-  showStep(currentStepIndex);
 }
 
 function validateShowcaseDuration() {
@@ -979,11 +953,39 @@ function setGroupTypeForIndividual() {
   }
 }
 
+function updateParticipantText() {
+  const isIndividual = document.querySelector('input[name="registration_type"]:checked')?.value === 'individual';
+  const participantsHeader = document.getElementById('participants-header');
+  const enterParticipantsText = document.getElementById('enter-participants-text');
+  const addParticipantBtn = document.getElementById('add-participant-btn');
+
+  if (participantsHeader) {
+    participantsHeader.textContent = isIndividual ? '3. Participant' : '3. Participants';
+  }
+
+  if (enterParticipantsText) {
+    enterParticipantsText.textContent = isIndividual ? 'Enter participant below:' : 'Enter participants below:';
+  }
+
+  if (addParticipantBtn) {
+    addParticipantBtn.textContent = '+ Add Participant';
+  }
+}
+
 function updateFormForIndividual() {
   const isIndividual = document.querySelector('input[name="registration_type"]:checked')?.value === 'individual';
 
   setGroupTypeForIndividual();
   updateLabelsForIndividual();
+  updateParticipantText();
+
+  if (isIndividual) {
+    const rows = document.querySelectorAll('#participants tbody tr');
+    for (let i = 1; i < rows.length; i++) {
+      rows[i].remove();
+      rowCounter--;
+    }
+  }
 
   const groupOnlyRequiredFields = [
       ...document.querySelectorAll('input[name="showcase_performance"]'),
@@ -1075,14 +1077,6 @@ showcaseRadios.forEach(radio => {
 
 hotelRadios.forEach(radio => radio.addEventListener('change', toggleHotelDetails));
 
-const originalShowStep = showStep;
-showStep = function(index) {
-  originalShowStep(index);
-  if (index === 0 || index === 1) {
-    updateFormForIndividual();
-  }
-};
-
 document.getElementById('regForm').addEventListener('submit', function(e) {
     const registrationType = document.querySelector('input[name="registration_type"]:checked')?.value;
   
@@ -1137,6 +1131,22 @@ document.addEventListener('DOMContentLoaded', () => {
     radio.addEventListener('change', toggleRegistrantFields);
   });
 
+  const assistantRadios = document.querySelectorAll('input[name="has_assistant_director"]');
+  const assistantFields = document.getElementById('assistant-director-fields');
+
+  function toggleAssistantFields() {
+    const hasAssistant = document.querySelector('input[name="has_assistant_director"]:checked')?.value === 'yes';
+    assistantFields.style.display = hasAssistant ? '' : 'none';
+    
+    if (!hasAssistant) {
+      assistantFields.querySelectorAll('input').forEach(el => el.value = '');
+    }
+  }
+
+  assistantRadios.forEach(radio => radio.addEventListener('change', toggleAssistantFields));
+
+  toggleAssistantFields();
+
   function updateLabelAndPrefix() {
     const isIndividual = document.querySelector('input[name="registration_type"]:checked')?.value === 'individual';
     label.textContent = isIndividual ? "Individual's Full Name (person filling out this form):" : "Group Name:";
@@ -1153,7 +1163,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   toggleShowcaseSongs();
   updateFormForIndividual();
-  showStep(0);
   addRow();
 });
 
