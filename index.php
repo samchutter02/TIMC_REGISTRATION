@@ -1075,7 +1075,6 @@ function updateFormForIndividual() {
   updatePaymentOptions();
 }
 
-// Add this function to handle payment options visibility
 function updatePaymentOptions() {
   const isIndividual = document.querySelector('input[name="registration_type"]:checked')?.value === 'individual';
   const poLabel = document.querySelector('label:has(input[value="purchase_order"])');
@@ -1091,13 +1090,11 @@ function updatePaymentOptions() {
         ccRadio.checked = true;
       }
     }
-    // Ensure PO info is hidden if individual
     if (poInfo) poInfo.style.display = 'none';
   } else {
     if (poLabel) poLabel.style.display = '';
     if (poRadio) poRadio.disabled = false;
   }
-  // Call existing togglePOInfo to handle info visibility based on selection
   togglePOInfo();
 }
 
@@ -1131,18 +1128,35 @@ document.getElementById('regForm').addEventListener('submit', function(e) {
             return;
         }
         
-        const firstName  = firstRow.querySelector('input[name*="][first_name]"]')?.value.trim()  || '';
-        const lastName   = firstRow.querySelector('input[name*="][last_name]"]')?.value.trim()   || '';
-        const fullName = [firstName, lastName].filter(Boolean).join(' ').trim();
+        const participantFirst = firstRow.querySelector('input[name*="][first_name]"]')?.value.trim()  || '';
+        const participantLast  = firstRow.querySelector('input[name*="][last_name]"]')?.value.trim()   || '';
+        const participantFull = [participantFirst, participantLast].filter(Boolean).join(' ').trim();
         
-        if (!fullName) {
+        if (!participantFull) {
             alert("Please enter first and last name for the participant.");
             e.preventDefault();
             return;
         }
         
         const groupInput = document.getElementById('registrant-name');
-        groupInput.value = `[INDIVIDUAL] - ${fullName}`;
+        const enteredFullName = groupInput.value.trim();
+        
+        if (!enteredFullName) {
+            alert("Please enter the individual's full name.");
+            e.preventDefault();
+            return;
+        }
+        
+        //split the entered full name for director
+        const nameParts = enteredFullName.split(/\s+/);
+        const lastName = nameParts.pop() || '';
+        const firstName = nameParts.join(' ') || '';
+        
+        document.querySelector('input[name="director_first"]').value = firstName;
+        document.querySelector('input[name="director_last"]').value = lastName;
+        
+        //Set group_name to [INDIVIDUAL] - participant full name
+        groupInput.value = `[INDIVIDUAL] - ${participantFull}`;
     }
 });
 
