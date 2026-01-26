@@ -1,5 +1,7 @@
 <?php
-//purpose of this file: review registration details and collect payment info via Stripe
+// ===================================================================================
+// if payment type is credit card, this file takes over to process payment via Stripe
+// ==================================================================================
 
 session_start();
 
