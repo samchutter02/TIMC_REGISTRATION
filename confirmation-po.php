@@ -34,7 +34,7 @@ $cart = $_SESSION['cart'];
 
     <div class="info">
       <strong>Payment Method:</strong> Purchase Order / Invoice<br><br>
-      <strong>PO / Invoice Number:</strong> <span class="highlight"><?= htmlspecialchars($cart['po_number']) ?></span><br>
+      <strong>Transaction Number:</strong> <span class="highlight"><?= htmlspecialchars($cart['po_number']) ?></span><br>
       <strong>Total Amount Due:</strong> $<?= number_format($cart['total_cost'], 2) ?><br><br>
       <strong>Next step:</strong> A confirmation email with invoice details has been sent to the director's email address.<br>
       Please submit your purchase order and payment by the published deadline.
