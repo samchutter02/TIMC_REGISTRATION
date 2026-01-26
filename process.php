@@ -266,7 +266,7 @@ try {
         $send($userEmail, $userName, $group_name);
     }
 
-    $send($adminEmail, '', '$directorName');
+    $send($adminEmail, '', $group_name);
 
     // ─────────────────────────
     //  CART SESSION & REDIRECT
