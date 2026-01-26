@@ -389,7 +389,7 @@ if (file_exists(__DIR__ . "/.reg-closed")) {
           </tr>
           <tr>
             <td><strong>School Name:</strong></td>
-            <td><input type="text" name="school_name" placeholder="(if applicable)"></td>
+            <td><input type="text" name="school_name"></td>
           </tr>
           <tr>
             <td><strong>Would this group like to perform in Showcase?</strong></td>
@@ -1181,6 +1181,32 @@ document.addEventListener('DOMContentLoaded', () => {
       registrantFields.querySelectorAll('input').forEach(el => el.value = '');
     }
   }
+
+  const schoolNameRow = document.querySelector('tr:has(input[name="school_name"])');
+const groupTypeRadios = document.querySelectorAll('input[name="group_type"]');
+
+function toggleSchoolNameField() {
+  const selectedType = document.querySelector('input[name="group_type"]:checked')?.value;
+  
+  if (schoolNameRow) {
+    if (selectedType === 'School') {
+      schoolNameRow.style.display = '';
+      schoolNameRow.querySelector('input').setAttribute('required', 'required');
+    } else {
+      schoolNameRow.style.display = 'none';
+      schoolNameRow.querySelector('input').removeAttribute('required');
+      schoolNameRow.querySelector('input').value = '';
+    }
+  }
+}
+
+// Initial check
+toggleSchoolNameField();
+
+// Listen for changes
+groupTypeRadios.forEach(radio => {
+  radio.addEventListener('change', toggleSchoolNameField);
+});
 
   toggleRegistrantFields();
   isDirectorRadios.forEach(radio => {
