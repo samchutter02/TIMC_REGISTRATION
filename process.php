@@ -124,56 +124,74 @@ try {
 
     $performer_count = $inserted_performers;
 
-    // ────────────────────────────────────────────────
-    //  determine payment method (only used for session, NOT stored)
-    // ────────────────────────────────────────────────
     $payment_method = $_POST['payment_method'] ?? 'credit_card';
     if (!in_array($payment_method, ['credit_card', 'purchase_order'])) {
         $payment_method = 'credit_card';
     }
 
+    $paid_status = 'No';
+
+    if ($payment_method === 'credit_card') {
+        $paid_status = ($total_cost > 0) ? 'Yes' : 'No';
+    } elseif ($payment_method === 'purchase_order') {
+        $paid_status = 'No';
+}
+
     // ───────
     //  GROUPS
     // ────────
     $stmt_group = $pdo->prepare("
-        INSERT INTO groups (
-            group_name,
-            group_type,
-            workshop_type,
-            showcase_performance,
-            garibaldi_performance,
-            school_name,
-            user_first_name,          
-            user_last_name,           
-            user_email,               
-            user_phone,               
-            total_cost,
-            po_number,
-            registration_date,
-            paid,
-            competition_exclusion,
-            hotel,
-            hotel_name
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), 0, ?, ?, ?)
-    ");
+    INSERT INTO groups (
+        group_name,
+        group_type,
+        workshop_type,
+        showcase_performance,
+        garibaldi_performance,
+        school_name,
+        user_first_name,          
+        user_last_name,           
+        user_email,               
+        user_phone,               
+        total_cost,
+        po_number,
+        registration_date,
+        paid,
+        competition_exclusion,
+        hotel,
+        hotel_name,
+        hotel_duration,
+        payment_1_date,
+        payment_1_amount,
+        payment_1_method
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?, NOW(), ?, ?)
+");
 
-    $stmt_group->execute([
-        $group_name,
-        $_POST['group_type']               ?? null,
-        $_POST['workshop_type']            ?? null,
-        $_POST['showcase_performance']     ?? 'No',
-        $_POST['garibaldi_performance']    ?? 'no',
-        $_POST['school_name']              ?? '',
-        $_POST['user_first_name']          ?? '',
-        $_POST['user_last_name']           ?? '',
-        $_POST['user_email']               ?? '',
-        $_POST['user_phone']               ?? '',
-        $total_cost,
-        $po_number,
-        $_POST['competition_exclusion']    ?? null,
-        $_POST['hotel']                    ?? 'no',
-        $_POST['hotel_name']               ?? ''
-    ]);
+$hotel_duration = isset($_POST['hotel_nights']) && $_POST['hotel_nights'] !== ''
+    ? (int) $_POST['hotel_nights']
+    : null;
+
+$stmt_group->execute([
+    $group_name,
+    $_POST['group_type']               ?? null,
+    $_POST['workshop_type']            ?? null,
+    $_POST['showcase_performance']     ?? 'No',
+    $_POST['garibaldi_performance']    ?? 'no',
+    $_POST['school_name']              ?? '',
+    $_POST['user_first_name']          ?? '',
+    $_POST['user_last_name']           ?? '',
+    $_POST['user_email']               ?? '',
+    $_POST['user_phone']               ?? '',
+    $total_cost,
+    $po_number,
+    $paid_status,                            
+    $_POST['competition_exclusion']    ?? null,
+    $_POST['hotel']                    ?? 'no',
+    $_POST['hotel_name']               ?? '',
+    $hotel_duration,                                                               
+    $total_cost,                                
+    $payment_method                            
+]);
+
 
     $group_id = $pdo->lastInsertId();
 
