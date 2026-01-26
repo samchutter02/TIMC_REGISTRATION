@@ -6,8 +6,8 @@ if (file_exists(__DIR__ . '/.reg-closed')) {
     exit;
 }
 
-if (empty($_SESSION['cart'])) {
-    $error_message = "No cart data found. Please start registration again.";
+if (empty($_SESSION['cart']) || empty($_SESSION['form_data'])) {
+    $error_message = "No cart or form data found. Please start registration again.";
     $is_success = false;
 } else {
     require 'vendor/autoload.php';
@@ -16,7 +16,7 @@ if (empty($_SESSION['cart'])) {
     $token = $_POST['stripeToken'] ?? null;
     $total_cost = (float) ($_SESSION['cart']['total_cost'] ?? 0);
     $group_name = $_SESSION['cart']['group_name'] ?? 'Unknown Group';
-    $email = $_SESSION['cart']['email'] ?? $_SESSION['cart']['user_email'] ?? null;
+    $email = $_SESSION['cart']['email'] ?? null;
 
     if (!$token) {
         $error_message = "No payment token received. Please try again.";
@@ -40,7 +40,245 @@ if (empty($_SESSION['cart'])) {
             $charge_id = $charge->id;
             $payment_amount = number_format($total_cost, 2);
 
-            // Clear cart on success
+            // Now, since payment successful, insert data into DB
+            require_once __DIR__ . '/send-email.php';
+
+            $env = @parse_ini_file(__DIR__ . '/.env', false, INI_SCANNER_RAW);
+            if ($env !== false) {
+                foreach ($env as $key => $value) {
+                    $_ENV[$key]    = $value;
+                    $_SERVER[$key] = $value;
+                    putenv("$key=$value");
+                }
+            }
+
+            $required = ['DB_HOST', 'DB_NAME', 'DB_USER', 'DB_PASS'];
+            foreach ($required as $var) {
+                if (empty($_ENV[$var])) {
+                    throw new Exception("Missing or empty required .env variable: $var");
+                }
+            }
+
+            $pdo = new PDO(
+                'mysql:host=' . $_ENV['DB_HOST'] . ';dbname=' . $_ENV['DB_NAME'] . ';charset=' . $_ENV['DB_CHARSET'],
+                $_ENV['DB_USER'],
+                $_ENV['DB_PASS'],
+                [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                ]
+            );
+
+            $pdo->beginTransaction();
+
+            $form_data = $_SESSION['form_data'];
+
+            // Insert directors
+            $stmt = $pdo->prepare("
+                INSERT INTO directors 
+                (group_name, first_name, last_name, street_address, city, state, zip_code, daytime_phone, cell_phone, email, d2_first_name, d2_last_name, d2_cell_phone, d2_daytime_phone, d2_email)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ");
+            $stmt->execute([
+                $group_name,
+                $form_data['director_first'] ?? '',
+                $form_data['director_last'] ?? '',
+                $form_data['street_address'] ?? '',
+                $form_data['city'] ?? '',
+                $form_data['state'] ?? '',
+                $form_data['zip_code'] ?? '',
+                $form_data['daytime_phone'] ?? '',
+                $form_data['cell_phone'] ?? '',
+                $form_data['email'] ?? '',
+                $form_data['d2_first_name'] ?? '',
+                $form_data['d2_last_name'] ?? '',
+                $form_data['d2_cell_phone'] ?? '',
+                $form_data['d2_daytime_phone'] ?? '',
+                $form_data['d2_email'] ?? ''
+            ]);
+
+            $director_id = $pdo->lastInsertId();
+
+            // Insert performers
+            $inserted_performers = 0;
+            if (!empty($form_data['performers']) && is_array($form_data['performers'])) {
+                $stmt = $pdo->prepare("
+                    INSERT INTO performers 
+                    (group_name, first_name, last_name, age, gender, grade, race, class, level, cost)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ");
+
+                foreach ($form_data['performers'] as $p) {
+                    if (empty($p['first_name']) && empty($p['last_name'])) continue;
+
+                    $cost = 0;
+                    $lvl = $p['level'] ?? '';
+                    $cls = $p['class'] ?? '';
+                    if (in_array($lvl, ['I','II','III'])) $cost = 115;
+                    else if ($lvl === 'Master') $cost = ($cls === 'Voice') ? 115 : 165;
+
+                    $stmt->execute([
+                        $group_name,
+                        $p['first_name'] ?? '',
+                        $p['last_name']  ?? '',
+                        (int)($p['age'] ?? 0),
+                        $p['gender']     ?? '',
+                        $p['grade']      ?? '',
+                        $p['race']       ?? '',
+                        $cls,
+                        $lvl,
+                        $cost
+                    ]);
+
+                    $inserted_performers++;
+                }
+            }
+
+            $performer_count = $inserted_performers;
+
+            $paid_status = 'Yes'; // Since payment succeeded
+
+            // Insert groups
+            $stmt_group = $pdo->prepare("
+                INSERT INTO groups (
+                    group_name,
+                    group_type,
+                    workshop_type,
+                    showcase_performance,
+                    garibaldi_performance,
+                    school_name,
+                    user_first_name,          
+                    user_last_name,           
+                    user_email,               
+                    user_phone,               
+                    total_cost,
+                    po_number,
+                    registration_date,
+                    paid,
+                    competition_exclusion,
+                    hotel,
+                    hotel_name,
+                    hotel_duration,
+                    payment_1_date,
+                    payment_1_amount,
+                    payment_1_method
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?, NOW(), ?, ?)
+            ");
+
+            $hotel_duration = isset($form_data['hotel_nights']) && $form_data['hotel_nights'] !== ''
+                ? (int) $form_data['hotel_nights']
+                : null;
+
+            $stmt_group->execute([
+                $group_name,
+                $form_data['group_type']               ?? null,
+                $form_data['workshop_type']            ?? null,
+                $form_data['showcase_performance']     ?? 'No',
+                $form_data['garibaldi_performance']    ?? 'no',
+                $form_data['school_name']              ?? '',
+                $form_data['user_first_name']          ?? '',
+                $form_data['user_last_name']           ?? '',
+                $form_data['user_email']               ?? '',
+                $form_data['user_phone']               ?? '',
+                $total_cost,
+                $_SESSION['cart']['po_number'],
+                $paid_status,                            
+                $form_data['competition_exclusion']    ?? null,
+                $form_data['hotel']                    ?? 'no',
+                $form_data['hotel_name']               ?? '',
+                $hotel_duration,                                                               
+                $total_cost,                                
+                'credit_card'                            
+            ]);
+
+            $group_id = $pdo->lastInsertId();
+
+            // Insert songs
+            $song_fields = [
+                1 => ['title' => '', 'length' => ''],
+                2 => ['title' => '', 'length' => ''],
+                3 => ['title' => '', 'length' => ''],
+            ];
+
+            if (!empty($form_data['showcase_songs']) && is_array($form_data['showcase_songs'])) {
+                foreach ($form_data['showcase_songs'] as $num => $song) {
+                    $num = (int)$num;
+                    if ($num < 1 || $num > 3) continue;
+
+                    $title   = trim($song['title']   ?? '');
+                    $seconds = (int)($song['seconds'] ?? 0);
+
+                    if ($title !== '' && $seconds > 0) {
+                        $minutes = floor($seconds / 60);
+                        $secs    = $seconds % 60;
+                        $length  = sprintf("%02d:%02d", $minutes, $secs);
+                        $song_fields[$num]['title']  = $title;
+                        $song_fields[$num]['length'] = $length;
+                    }
+                }
+            }
+
+            $stmt = $pdo->prepare("
+                INSERT INTO songs 
+                (group_name, song_1_title, song_1_length, song_2_title, song_2_length, song_3_title, song_3_length)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            ");
+
+            $stmt->execute([
+                $group_name,
+                $song_fields[1]['title'],
+                $song_fields[1]['length'],
+                $song_fields[2]['title'],
+                $song_fields[2]['length'],
+                $song_fields[3]['title'],
+                $song_fields[3]['length'],
+            ]);
+
+            $pdo->commit();
+
+            // Send emails
+            $directorEmail = trim($form_data['email'] ?? '');
+            $userEmail     = trim($form_data['user_email'] ?? '');
+            $adminEmail    = 'info@tucsonmariachi.org';
+
+            $directorName  = trim(($form_data['director_first'] ?? '') . ' ' . ($form_data['director_last'] ?? ''));
+            $userName      = trim(($form_data['user_first_name'] ?? '') . ' ' . ($form_data['user_last_name'] ?? ''));
+
+            $common = [
+                'groupName'      => $group_name,
+                'poNumber'       => $_SESSION['cart']['po_number'],
+                'totalCost'      => $total_cost,
+                'performerCount' => $performer_count,
+                'formData'       => $form_data + ['payment_method' => 'credit_card'],
+            ];
+
+            $send = function($email, $name, $fallback) use ($common) {
+                $email = trim($email);
+                if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    return;
+                }
+                $name = trim($name) ?: $fallback;
+                sendRegistrationConfirmation(
+                    toEmail:       $email,
+                    toName:        $name,
+                    groupName:     $common['groupName'],
+                    poNumber:      $common['poNumber'],
+                    totalCost:     $common['totalCost'],
+                    performerCount: $common['performerCount'],
+                    formData:      $common['formData']
+                );
+            };
+
+            $send($directorEmail, $directorName, $group_name);
+
+            if ($userEmail && strcasecmp($userEmail, $directorEmail) !== 0) {
+                $send($userEmail, $userName, $group_name);
+            }
+
+            $send($adminEmail, '', $group_name);
+
+            // Update session if needed, clear form_data
+            unset($_SESSION['form_data']);
             unset($_SESSION['cart']);
 
         } catch (\Stripe\Exception\CardException $e) {
@@ -51,7 +289,8 @@ if (empty($_SESSION['cart'])) {
             $is_success = false;
         } catch (Exception $e) {
             $error_message = $e->getMessage() ?: 'An unexpected error occurred.';
-            error_log("Stripe error: " . $e->getMessage());
+            error_log("Stripe or DB error: " . $e->getMessage());
+            if (isset($pdo)) $pdo->rollBack();
             $is_success = false;
         }
     }
