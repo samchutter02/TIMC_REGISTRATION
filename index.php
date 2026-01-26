@@ -1206,7 +1206,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function updateLabelAndPrefix() {
     const isIndividual = document.querySelector('input[name="registration_type"]:checked')?.value === 'individual';
     if (isIndividual) {
-        label.innerHTML = "Individual's Full Name:<br><small>(person filling out this form)</small>";
+        label.innerHTML = "Your Full Name:<br><small>(whoever is filling out this form)</small>";
     } else {
         label.textContent = "Group Name:";
     }
