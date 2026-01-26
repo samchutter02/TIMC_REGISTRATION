@@ -378,11 +378,6 @@ if (file_exists(__DIR__ . "/.reg-closed")) {
               </div>
             </td>
           </tr>
-
-          <tr>
-            <td><strong>School Name:</strong></td>
-            <td><input type="text" name="school_name" placeholder="(if applicable)"></td>
-          </tr>
           <tr>
             <td><strong>Group Type:</strong></td>
             <td colspan="3">
@@ -391,6 +386,10 @@ if (file_exists(__DIR__ . "/.reg-closed")) {
                 <label><input type="radio" name="group_type" value="Community"> Community</label>
               </div>
             </td>
+          </tr>
+          <tr>
+            <td><strong>School Name:</strong></td>
+            <td><input type="text" name="school_name" placeholder="(if applicable)"></td>
           </tr>
           <tr>
             <td><strong>Would this group like to perform in Showcase?</strong></td>
