@@ -215,50 +215,56 @@ try {
 
         $group_id = $pdo->lastInsertId();
 
-        // Insert songs (unchanged)
-        $song_fields = [
-            1 => ['title' => '', 'length' => ''],
-            2 => ['title' => '', 'length' => ''],
-            3 => ['title' => '', 'length' => ''],
-        ];
+        // ─────────────────────────────────────────────────────────────
+        // Insert songs — ONLY if showcase_performance is 'Yes'
+        // ─────────────────────────────────────────────────────────────
+        $showcase_requested = ($_POST['showcase_performance'] ?? 'No') === 'Yes';
 
-        if (!empty($_POST['showcase_songs']) && is_array($_POST['showcase_songs'])) {
-            foreach ($_POST['showcase_songs'] as $num => $song) {
-                $num = (int)$num;
-                if ($num < 1 || $num > 3) continue;
+        if ($showcase_requested) {
+            $song_fields = [
+                1 => ['title' => '', 'length' => ''],
+                2 => ['title' => '', 'length' => ''],
+                3 => ['title' => '', 'length' => ''],
+            ];
 
-                $title   = trim($song['title']   ?? '');
-                $seconds = (int)($song['seconds'] ?? 0);
+            if (!empty($_POST['showcase_songs']) && is_array($_POST['showcase_songs'])) {
+                foreach ($_POST['showcase_songs'] as $num => $song) {
+                    $num = (int)$num;
+                    if ($num < 1 || $num > 3) continue;
 
-                if ($title !== '' && $seconds > 0) {
-                    $minutes = floor($seconds / 60);
-                    $secs    = $seconds % 60;
-                    $length  = sprintf("%02d:%02d", $minutes, $secs);
-                    $song_fields[$num]['title']  = $title;
-                    $song_fields[$num]['length'] = $length;
+                    $title   = trim($song['title']   ?? '');
+                    $seconds = (int)($song['seconds'] ?? 0);
+
+                    if ($title !== '' && $seconds > 0) {
+                        $minutes = floor($seconds / 60);
+                        $secs    = $seconds % 60;
+                        $length  = sprintf("%02d:%02d", $minutes, $secs);
+                        $song_fields[$num]['title']  = $title;
+                        $song_fields[$num]['length'] = $length;
+                    }
                 }
             }
+
+            $stmt = $pdo->prepare("
+                INSERT INTO songs 
+                (group_name, song_1_title, song_1_length, song_2_title, song_2_length, song_3_title, song_3_length)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            ");
+
+            $stmt->execute([
+                $group_name,
+                $song_fields[1]['title'],
+                $song_fields[1]['length'],
+                $song_fields[2]['title'],
+                $song_fields[2]['length'],
+                $song_fields[3]['title'],
+                $song_fields[3]['length'],
+            ]);
         }
-
-        $stmt = $pdo->prepare("
-            INSERT INTO songs 
-            (group_name, song_1_title, song_1_length, song_2_title, song_2_length, song_3_title, song_3_length)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        ");
-
-        $stmt->execute([
-            $group_name,
-            $song_fields[1]['title'],
-            $song_fields[1]['length'],
-            $song_fields[2]['title'],
-            $song_fields[2]['length'],
-            $song_fields[3]['title'],
-            $song_fields[3]['length'],
-        ]);
 
         $pdo->commit();
 
-        // Send emails for PO (unchanged)
+        // Send emails for PO
         $directorEmail = trim($_POST['email'] ?? '');
         $userEmail     = trim($_POST['user_email'] ?? '');
         $adminEmail    = 'info@tucsonmariachi.org';
