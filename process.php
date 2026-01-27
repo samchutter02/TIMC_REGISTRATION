@@ -52,6 +52,43 @@ $_SESSION['form_data'] = $_POST;
 
 $group_name = $_POST['group_name'] ?? '';
 
+$group_name = trim($group_name);
+if ($group_name === '') {
+    die("Group name is required.");
+}
+
+$pdo = get_custom_db_connection();
+$stmt = $pdo->prepare("SELECT 1 FROM groups WHERE group_name = ? LIMIT 1");
+$stmt->execute([$group_name]);
+if ($stmt->fetch()) {
+    ?>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Name Already Taken - Tucson Mariachi Conference</title>
+        <style>
+            body { font-family: system-ui, sans-serif; background:#fdfdfd; color:#1a1a1a; margin:0; padding:40px 20px; text-align:center; line-height:1.6; }
+            .container { max-width:600px; margin:0 auto; background:white; padding:40px; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.1); }
+            h1 { color:#b22222; }
+            .btn { display:inline-block; margin-top:24px; padding:12px 28px; background:#006400; color:white; text-decoration:none; border-radius:8px; font-weight:bold; }
+            .btn:hover { background:#004d00; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Name already taken</h1>
+            <p>The name <strong><?= htmlspecialchars($group_name) ?></strong> is already registered.</p>
+            <p>Please go back and choose a different name.</p>
+            <p><a href="index.php" class="btn">← Back to registration form</a></p>
+        </div>
+    </body>
+    </html>
+    <?php
+    exit;
+}
+
 $po_suffix = substr($_POST['cell_phone'] ?? '0000', -6);
 $po_number = '2026' . str_pad($po_suffix, 4, '0', STR_PAD_LEFT);
 
