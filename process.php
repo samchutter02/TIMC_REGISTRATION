@@ -218,49 +218,68 @@ try {
         // ─────────────────────────────────────────────────────────────
         // Insert songs — ONLY if showcase_performance is 'Yes'
         // ─────────────────────────────────────────────────────────────
-        $showcase_requested = ($_POST['showcase_performance'] ?? 'No') === 'Yes';
+        // ─────────────────────────────────────────────────────────────
+// Insert songs — ONLY if ALL of the following are true:
+//   1. showcase_performance = 'Yes'
+//   2. group_type != 'Individual'
+// ─────────────────────────────────────────────────────────────
+$showcase_requested = ($_POST['showcase_performance'] ?? 'No') === 'Yes';
+$is_individual      = ($_POST['group_type'] ?? '') === 'Individual';
 
-        if ($showcase_requested) {
-            $song_fields = [
-                1 => ['title' => '', 'length' => ''],
-                2 => ['title' => '', 'length' => ''],
-                3 => ['title' => '', 'length' => ''],
-            ];
+if ($showcase_requested && !$is_individual) {
+    $song_fields = [
+        1 => ['title' => '', 'length' => ''],
+        2 => ['title' => '', 'length' => ''],
+        3 => ['title' => '', 'length' => ''],
+    ];
 
-            if (!empty($_POST['showcase_songs']) && is_array($_POST['showcase_songs'])) {
-                foreach ($_POST['showcase_songs'] as $num => $song) {
-                    $num = (int)$num;
-                    if ($num < 1 || $num > 3) continue;
+    if (!empty($_POST['showcase_songs']) && is_array($_POST['showcase_songs'])) {
+        foreach ($_POST['showcase_songs'] as $num => $song) {
+            $num = (int)$num;
+            if ($num < 1 || $num > 3) continue;
 
-                    $title   = trim($song['title']   ?? '');
-                    $seconds = (int)($song['seconds'] ?? 0);
+            $title   = trim($song['title']   ?? '');
+            $seconds = (int)($song['seconds'] ?? 0);
 
-                    if ($title !== '' && $seconds > 0) {
-                        $minutes = floor($seconds / 60);
-                        $secs    = $seconds % 60;
-                        $length  = sprintf("%02d:%02d", $minutes, $secs);
-                        $song_fields[$num]['title']  = $title;
-                        $song_fields[$num]['length'] = $length;
-                    }
-                }
+            if ($title !== '' && $seconds > 0) {
+                $minutes = floor($seconds / 60);
+                $secs    = $seconds % 60;
+                $length  = sprintf("%02d:%02d", $minutes, $secs);
+                $song_fields[$num]['title']  = $title;
+                $song_fields[$num]['length'] = $length;
             }
-
-            $stmt = $pdo->prepare("
-                INSERT INTO songs 
-                (group_name, song_1_title, song_1_length, song_2_title, song_2_length, song_3_title, song_3_length)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-            ");
-
-            $stmt->execute([
-                $group_name,
-                $song_fields[1]['title'],
-                $song_fields[1]['length'],
-                $song_fields[2]['title'],
-                $song_fields[2]['length'],
-                $song_fields[3]['title'],
-                $song_fields[3]['length'],
-            ]);
         }
+    }
+
+    // Only insert if at least one song has content (optional but cleaner)
+    $hasAnySong = false;
+    foreach ($song_fields as $f) {
+        if ($f['title'] !== '' || $f['length'] !== '') {
+            $hasAnySong = true;
+            break;
+        }
+    }
+
+    if ($hasAnySong) {
+        $stmt = $pdo->prepare("
+            INSERT INTO songs 
+            (group_name, song_1_title, song_1_length, song_2_title, song_2_length, song_3_title, song_3_length)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ");
+
+        $stmt->execute([
+            $group_name,
+            $song_fields[1]['title'],
+            $song_fields[1]['length'],
+            $song_fields[2]['title'],
+            $song_fields[2]['length'],
+            $song_fields[3]['title'],
+            $song_fields[3]['length'],
+        ]);
+    }
+}
+
+        
 
         $pdo->commit();
 
