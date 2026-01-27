@@ -125,10 +125,20 @@ try {
                 if (empty($p['first_name']) && empty($p['last_name'])) continue;
 
                 $cost = 0;
-                $lvl = $p['level'] ?? '';
-                $cls = $p['class'] ?? '';
-                if (in_array($lvl, ['I','II','III'])) $cost = 115;
-                else if ($lvl === 'Master') $cost = ($cls === 'Voice') ? 115 : 165;
+                $lvl  = $p['level']  ?? '';
+                $cls  = $p['class']  ?? '';
+
+                // Enforce Dance class when Folklorico is selected
+                $workshop_type = $_POST['workshop_type'] ?? 'Mariachi';
+                if ($workshop_type === 'Folklorico') {
+                    $cls = 'Dance';
+                }
+
+                if (in_array($lvl, ['I','II','III'])) {
+                    $cost = 115;
+                } else if ($lvl === 'Master') {
+                    $cost = ($cls === 'Voice') ? 115 : 165;
+                }
 
                 $stmt->execute([
                     $group_name,
@@ -142,12 +152,16 @@ try {
                     $lvl,
                     $cost
                 ]);
+
+                $inserted_performers++;
             }
         }
 
         $paid_status = 'No';
 
-        // Insert groups
+        // ─────────────────────────────────────────────────────────────
+        // Insert group - Purchase Order version (payment_1 fields NULL)
+        // ─────────────────────────────────────────────────────────────
         $stmt_group = $pdo->prepare("
             INSERT INTO groups (
                 group_name,
@@ -171,7 +185,7 @@ try {
                 payment_1_date,
                 payment_1_amount,
                 payment_1_method
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?, NOW(), ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?, NULL, NULL, ?)
         ");
 
         $hotel_duration = isset($_POST['hotel_nights']) && $_POST['hotel_nights'] !== ''
@@ -196,13 +210,12 @@ try {
             $_POST['hotel']                    ?? 'no',
             $_POST['hotel_name']               ?? '',
             $hotel_duration,                                                               
-            $total_cost,                                
             $payment_method                            
         ]);
 
         $group_id = $pdo->lastInsertId();
 
-        // Insert songs
+        // Insert songs (unchanged)
         $song_fields = [
             1 => ['title' => '', 'length' => ''],
             2 => ['title' => '', 'length' => ''],
@@ -245,7 +258,7 @@ try {
 
         $pdo->commit();
 
-        // Send emails for PO
+        // Send emails for PO (unchanged)
         $directorEmail = trim($_POST['email'] ?? '');
         $userEmail     = trim($_POST['user_email'] ?? '');
         $adminEmail    = 'info@tucsonmariachi.org';
@@ -302,7 +315,9 @@ try {
         exit;
 
     } else {
-        // For credit_card, just set session and redirect to invoice
+        // ─────────────────────────────────────────────────────────────
+        // Credit card path - keep original behavior (payment fields set)
+        // ─────────────────────────────────────────────────────────────
         $_SESSION['cart'] = [
             'group_name'    => $group_name,
             'director_name' => ($_POST['director_first'] ?? '') . ' ' . ($_POST['director_last'] ?? ''),
