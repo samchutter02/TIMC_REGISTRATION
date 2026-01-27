@@ -100,39 +100,50 @@ if (empty($_SESSION['cart']) || empty($_SESSION['form_data'])) {
             $director_id = $pdo->lastInsertId();
 
             // Insert performers
-            $inserted_performers = 0;
-            if (!empty($form_data['performers']) && is_array($form_data['performers'])) {
-                $stmt = $pdo->prepare("
-                    INSERT INTO performers 
-                    (group_name, first_name, last_name, age, gender, grade, race, class, level, cost)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                ");
+            // Insert performers
+$inserted_performers = 0;
+if (!empty($form_data['performers']) && is_array($form_data['performers'])) {
+    $stmt = $pdo->prepare("
+        INSERT INTO performers 
+        (group_name, first_name, last_name, age, gender, grade, race, class, level, cost)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ");
 
-                foreach ($form_data['performers'] as $p) {
-                    if (empty($p['first_name']) && empty($p['last_name'])) continue;
+    foreach ($form_data['performers'] as $p) {
+        if (empty($p['first_name']) && empty($p['last_name'])) continue;
 
-                    $cost = 0;
-                    $lvl = $p['level'] ?? '';
-                    $cls = $p['class'] ?? '';
-                    if (in_array($lvl, ['I','II','III'])) $cost = 115;
-                    else if ($lvl === 'Master') $cost = ($cls === 'Voice') ? 115 : 165;
+        $cost = 0;
+        $lvl  = $p['level']  ?? '';
+        $cls  = $p['class']  ?? '';
 
-                    $stmt->execute([
-                        $group_name,
-                        $p['first_name'] ?? '',
-                        $p['last_name']  ?? '',
-                        (int)($p['age'] ?? 0),
-                        $p['gender']     ?? '',
-                        $p['grade']      ?? '',
-                        $p['race']       ?? '',
-                        $cls,
-                        $lvl,
-                        $cost
-                    ]);
+        // Enforce Dance class when Folklorico is selected
+        $workshop_type = $form_data['workshop_type'] ?? 'Mariachi';
+        if ($workshop_type === 'Folklorico') {
+            $cls = 'Dance';
+        }
 
-                    $inserted_performers++;
-                }
-            }
+        if (in_array($lvl, ['I','II','III'])) {
+            $cost = 115;
+        } else if ($lvl === 'Master') {
+            $cost = ($cls === 'Voice') ? 115 : 165;
+        }
+
+        $stmt->execute([
+            $group_name,
+            $p['first_name'] ?? '',
+            $p['last_name']  ?? '',
+            (int)($p['age'] ?? 0),
+            $p['gender']     ?? '',
+            $p['grade']      ?? '',
+            $p['race']       ?? '',
+            $cls,
+            $lvl,
+            $cost
+        ]);
+
+        $inserted_performers++;
+    }
+}
 
             $performer_count = $inserted_performers;
 
