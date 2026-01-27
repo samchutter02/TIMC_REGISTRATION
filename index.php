@@ -455,7 +455,7 @@ if (file_exists(__DIR__ . "/.reg-closed")) {
 
       <!-- PAGE 2 -->
       <div class="card" id="step2">
-        <h2>2. Contact & Performance Preferences</h2>
+        <h2>2. Director Contact Information</h2>
         <table class="form-top">
           <tr>
             <td><strong id="director-first-label">Director First Name:</strong></td>
@@ -545,7 +545,7 @@ if (file_exists(__DIR__ . "/.reg-closed")) {
               <strong>Add an Assistant Director?</strong>
               <div class="radio-group" style="margin-top: 12px;">
                 <label><input type="radio" name="has_assistant_director" value="yes"> Yes</label>
-                <label><input type="radio" name="has_assistant_director" value="no"> No</label>
+                <label><input type="radio" name="has_assistant_director" value="no" checked> No</label>
               </div>
             </td>
           </tr>
@@ -722,6 +722,7 @@ function addRow() {
       `;
 
       tbody.appendChild(tr);
+      updateInstrumentDropdowns();
 
       const instrSelect = tr.querySelector('.instrument');
       const levelSelect = tr.querySelector('.level');
@@ -925,6 +926,37 @@ function updateTotalDuration() {
 // ────────────────────────────
 //Main form state management
 // ────────────────────────────
+function updateInstrumentDropdowns() {
+  const workshopType =
+    document.querySelector('input[name="workshop_type"]:checked')?.value;
+
+  document.querySelectorAll('.instrument').forEach(select => {
+    if (workshopType === 'Folklorico') {
+      select.innerHTML = `
+        <option value="Dance">Dance</option>
+      `;
+      select.value = 'Dance';
+      select.disabled = true;
+    } else {
+      const currentValue = select.value;
+      select.innerHTML = `
+        <option value="">-</option>
+        <option>Guitar</option>
+        <option>Guitarron</option>
+        <option>Harp</option>
+        <option>Trumpet</option>
+        <option>Vihuela</option>
+        <option>Violin</option>
+        <option>Voice</option>
+      `;
+      select.disabled = false;
+      if (currentValue) select.value = currentValue;
+    }
+    select.dispatchEvent(new Event('change'));
+  });
+}
+
+
 function updateHotelLabel() {
   const isIndividual = document.querySelector('input[name="registration_type"]:checked')?.value === 'individual';
   if (hotelQuestionLabel) {
@@ -1105,6 +1137,11 @@ document.querySelectorAll('input[name="registration_type"]').forEach(radio => {
     updateFormForIndividual();
   });
 });
+
+document.querySelectorAll('input[name="workshop_type"]').forEach(radio => {
+  radio.addEventListener('change', updateInstrumentDropdowns);
+});
+
 
 showcaseRadios.forEach(radio => {
   radio.addEventListener('change', toggleShowcaseSongs);
