@@ -441,7 +441,7 @@ if (file_exists(__DIR__ . "/.reg-closed")) {
               </tr>
               <tr>
                 <td><strong>Your Day Phone:</strong></td>
-                <td><input type="tel" name="user_phone"></td>
+                <td><input type="tel" name="user_phone" minLength="10" maxLength="10" title="Please enter exactly 10 digits (e.g., 1234567890)" pattern="\d{10}"></td>
                 <td></td><td></td>
               </tr>
             </table>
@@ -455,7 +455,7 @@ if (file_exists(__DIR__ . "/.reg-closed")) {
 
       <!-- PAGE 2 -->
       <div class="card" id="step2">
-        <h2>2. Director Contact Information</h2>
+        <h2 id="director-contact-header">2. Director Contact Information</h2>
         <table class="form-top">
           <tr>
             <td><strong id="director-first-label">Director First Name:</strong></td>
@@ -531,14 +531,14 @@ if (file_exists(__DIR__ . "/.reg-closed")) {
           </tr>
           <tr>
             <td><strong id="zip-label">Zip:</strong></td>
-            <td><input type="text" name="zip_code" id="zip-field" required></td>
+            <td><input type="text" name="zip_code" id="zip-field" minLength="7" maxLength="7" required></td>
             <td colspan="2"></td>
           </tr>
           <tr>
             <td><strong id="cell-phone-label">Director Cell Phone:</strong></td>
-            <td><input type="tel" name="cell_phone" id="cell-phone-field" required></td>
+            <td><input type="tel" name="cell_phone" id="cell-phone-field" minLength="10" maxLength="10" title="Please enter exactly 10 digits (e.g., 1234567890)" pattern="\d{10}" required></td>
             <td><strong>Day Phone:</strong></td>
-            <td><input type="tel" name="daytime_phone"></td>
+            <td><input type="tel" name="daytime_phone" minLength="10" maxLength="10" title="Please enter exactly 10 digits (e.g., 1234567890)" pattern="\d{10}"></td>
           </tr>
           <tr>
             <td colspan="4" style="padding-top: 1.5rem;">
@@ -559,9 +559,9 @@ if (file_exists(__DIR__ . "/.reg-closed")) {
             </tr>
             <tr>
               <td><strong>Assistant Director Cell Phone:</strong></td>
-              <td><input type="tel" name="d2_cell_phone"></td>
+              <td><input type="tel" name="d2_cell_phone" minLength="10" maxLength="10" title="Please enter exactly 10 digits (e.g., 1234567890)" pattern="\d{10}"></td>
               <td><strong>Assistant Day Phone:</strong></td>
-              <td><input type="tel" name="d2_daytime_phone"></td>
+              <td><input type="tel" name="d2_daytime_phone" minLength="10" maxLength="10" title="Please enter exactly 10 digits (e.g., 1234567890)" pattern="\d{10}"></td>
             </tr>
             <tr>
               <td><strong>Assistant Director Email:</strong></td>
@@ -573,7 +573,7 @@ if (file_exists(__DIR__ . "/.reg-closed")) {
 
       <!--PAGE 3-->
       <div class="card" id="step3">
-        <h2 id="participants-header">3. Participants</h2>
+        <h2 id="participants-header">3. Participant Information</h2>
 
         <table class="participant-table" id="participants">
           <h4 style="color: black; font-weight: light;" id="enter-participants-text">Enter participants below:</h4>
@@ -1006,7 +1006,7 @@ function updateParticipantText() {
   const addParticipantBtn = document.getElementById('add-participant-btn');
 
   if (participantsHeader) {
-    participantsHeader.textContent = isIndividual ? '3. Participant' : '3. Participants';
+    participantsHeader.textContent = isIndividual ? '3. Participant Information' : '3. Participants';
   }
 
   if (enterParticipantsText) {
@@ -1018,12 +1018,21 @@ function updateParticipantText() {
   }
 }
 
+function updateContactInfoLabel() {
+  const isIndividual = document.querySelector('input[name="registration_type"]:checked')?.value === 'individual';
+  const contactHeader = document.getElementById('director-contact-header');
+  if (contactHeader) {
+    contactHeader.textContent = isIndividual ? '2. Your Contact Information' : '2. Director Contact Information';
+  }
+}
+
 function updateFormForIndividual() {
   const isIndividual = document.querySelector('input[name="registration_type"]:checked')?.value === 'individual';
 
   setGroupTypeForIndividual();
   updateLabelsForIndividual();
   updateParticipantText();
+  updateContactInfoLabel();
 
   if (isIndividual) {
     const rows = document.querySelectorAll('#participants tbody tr');
