@@ -5,6 +5,7 @@ This README serves as a comprehensive guide to the 2026 Tucson International Mar
 If you're new, start with the **Introduction** and **Setup Instructions**. Then, review the **Workflow** section to understand user flow, followed by **File-by-File Explanations** for deep dives.
 
 ---
+#*SAVE AND CONTINUE FUNCTIONALITY ADDED - [BETA]*
 
 ## Introduction
 
@@ -35,7 +36,7 @@ The system emphasizes simplicity: no user accounts, session-based state manageme
 - Sessions store form data temporarily.
 - No file uploads
 - Emails are sent synchronously (could block if slow).
-- No refunds or edits post-submission.
+- No refunds.
 
 ---
 
@@ -335,3 +336,4 @@ Relationships: Linked by `group_name` (string; consider ID for efficiency).
 - **Contact**: For questions, email info@tucsonmariachi.org (admin).
 
 This system is straightforward but robust. If extending (e.g., admin dashboard), start with auth. Happy coding!
+
