@@ -45,10 +45,13 @@ function get_custom_db_connection() {
 
 session_start();
 
-// Store all POST data in session for later use
+//store all POST data in session for later use
 $_SESSION['form_data'] = $_POST;
 
-// Calculate necessary values here, similar to original
+if (isset($_POST['action']) && $_POST['action'] === 'save_partial') {
+    require __DIR__ . '/save-partial.php';
+    exit;
+}
 
 $group_name = $_POST['group_name'] ?? '';
 
@@ -252,14 +255,7 @@ try {
 
         $group_id = $pdo->lastInsertId();
 
-        // ─────────────────────────────────────────────────────────────
-        // Insert songs — ONLY if showcase_performance is 'Yes'
-        // ─────────────────────────────────────────────────────────────
-        // ─────────────────────────────────────────────────────────────
-// Insert songs — ONLY if ALL of the following are true:
-//   1. showcase_performance = 'Yes'
-//   2. group_type != 'Individual'
-// ─────────────────────────────────────────────────────────────
+
 $showcase_requested = ($_POST['showcase_performance'] ?? 'No') === 'Yes';
 $is_individual      = ($_POST['group_type'] ?? '') === 'Individual';
 
@@ -288,7 +284,6 @@ if ($showcase_requested && !$is_individual) {
         }
     }
 
-    // Only insert if at least one song has content (optional but cleaner)
     $hasAnySong = false;
     foreach ($song_fields as $f) {
         if ($f['title'] !== '' || $f['length'] !== '') {
@@ -377,9 +372,6 @@ if ($showcase_requested && !$is_individual) {
         exit;
 
     } else {
-        // ─────────────────────────────────────────────────────────────
-        // Credit card path - keep original behavior (payment fields set)
-        // ─────────────────────────────────────────────────────────────
         $_SESSION['cart'] = [
             'group_name'    => $group_name,
             'director_name' => ($_POST['director_first'] ?? '') . ' ' . ($_POST['director_last'] ?? ''),
