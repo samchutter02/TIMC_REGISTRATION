@@ -2,10 +2,8 @@
 
 This README serves as a comprehensive guide to the 2026 Tucson International Mariachi Conference registration system. I designed this for future developers taking over maintenance, updates, or troubleshooting. Think of this as the "Bible" for the program: it covers architecture, file purposes, workflows, database interactions, security notes, and more. The system is built in PHP, uses MySQL for data storage, Stripe for payments, and PHPMailer for emails. It supports group and individual registrations for workshops (Mariachi or Folklorico), with options for performances, hotels, and payments via credit card or purchase order (PO).
 
-If you're new, start with the **Introduction** and **Setup Instructions**. Then, review the **Workflow** section to understand user flow, followed by **File-by-File Explanations** for deep dives.
-
+### **** 1/28/26 - SAVE AND CONTINUE FUNCTIONALITY ADDED - [BETA] ****
 ---
-### *SAVE AND CONTINUE FUNCTIONALITY ADDED - [BETA]*
 
 ## Introduction
 
@@ -336,6 +334,7 @@ Relationships: Linked by `group_name` (string; consider ID for efficiency).
 - **Contact**: For questions, email info@tucsonmariachi.org (admin).
 
 This system is straightforward but robust. If extending (e.g., admin dashboard), start with auth. Happy coding!
+
 
 
 
