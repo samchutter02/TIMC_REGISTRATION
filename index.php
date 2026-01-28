@@ -4,6 +4,13 @@ if (file_exists(__DIR__ . "/.reg-closed")) {
     exit();
 }
 
+session_start();
+
+$resume_error = '';
+if (!empty($_GET['resume']) && $_GET['resume'] === 'expired') {
+    $resume_error = '<div style="background:#ffebee; color:#c62828; padding:16px; border-radius:8px; margin:20px 0; text-align:center; font-weight:bold;">This resume link has expired or is invalid. You may start a new registration or contact support.</div>';
+}
+
 //============================================
 // to kill/activate registration, simply upload an empty sentinel file (no file type) called exactly ".reg-closed" to the server (include the dot at the beginning)
 // this will activate "registration.closed.php" which displays a message and allows a redirect to the TIMC website
@@ -330,7 +337,7 @@ if (file_exists(__DIR__ . "/.reg-closed")) {
     </div>
 
     <form method="post" action="process.php" id="regForm">
-
+    <?= $resume_error ?? '' ?>
       <!-- PAGE 1 -->
       <div class="card" id="step1">
         <h2>1. Registration Information</h2>
@@ -531,7 +538,7 @@ if (file_exists(__DIR__ . "/.reg-closed")) {
           </tr>
           <tr>
             <td><strong id="zip-label">Zip:</strong></td>
-            <td><input type="text" name="zip_code" id="zip-field" minLength="7" maxLength="7" required></td>
+            <td><input type="text" name="zip_code" id="zip-field" minLength="5" maxLength="5" required></td>
             <td colspan="2"></td>
           </tr>
           <tr>
@@ -649,8 +656,90 @@ if (file_exists(__DIR__ . "/.reg-closed")) {
 
       <!-- Nav-->
       <div class="form-navigation">
+        <button type="submit" name="action" value="save_partial" formnovalidate class="secondary">Save & Continue Later</button>
         <button type="submit" id="submitBtn" class="primary">Review & Continue to Payment →</button>
       </div>
+
+      <?php
+if (!empty($_SESSION['partial_resume_data'])) {
+    $d = $_SESSION['partial_resume_data'];
+    unset($_SESSION['partial_resume_data']); // consume it
+    ?>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const data = <?= json_encode($d, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+
+        // ── Simple fields ───────────────────────────────────────
+        const simpleFields = [
+            'group_name', 'registration_type', 'workshop_type', 'hotel', 'hotel_name',
+            'group_type', 'school_name', 'director_first', 'director_last', 'email',
+            'cell_phone', 'daytime_phone', 'street_address', 'city', 'state', 'zip_code',
+            'user_first_name', 'user_last_name', 'user_email', 'user_phone',
+            'has_assistant_director', 'd2_first_name', 'd2_last_name', 'd2_cell_phone', 'd2_email',
+            'showcase_performance', 'garibaldi_performance', 'competition_exclusion'
+        ];
+
+        simpleFields.forEach(name => {
+            const el = document.querySelector(`[name="${name}"]`);
+            if (el && data[name] !== undefined && data[name] !== null) {
+                if (el.type === 'radio') {
+                    const radio = document.querySelector(`[name="${name}"][value="${data[name]}"]`);
+                    if (radio) radio.checked = true;
+                } else if (el.type === 'checkbox') {
+                    el.checked = !!data[name];
+                } else {
+                    el.value = data[name];
+                }
+            }
+        });
+
+        // ── Performers ──────────────────────────────────────────
+        <?php if (!empty($d['performers']) && is_array($d['performers'])): ?>
+            // Clear existing rows except the first template one if needed
+            const tbody = document.querySelector('#participants tbody');
+            while (tbody.children.length > 1) { // keep at least one empty row if your JS expects it
+                tbody.removeChild(tbody.lastChild);
+            }
+
+            <?php foreach ($d['performers'] as $idx => $p): ?>
+                addRow(); // your existing function
+                const row = document.querySelector('#participants tbody tr:last-child');
+                if (row) {
+                    row.querySelector('[name*="][first_name]"]').value = "<?= htmlspecialchars($p['first_name'] ?? '') ?>";
+                    row.querySelector('[name*="][last_name]"]').value  = "<?= htmlspecialchars($p['last_name'] ?? '') ?>";
+                    row.querySelector('[name*="][class]"]').value      = "<?= htmlspecialchars($p['class'] ?? '') ?>";
+                    row.querySelector('[name*="][level]"]').value      = "<?= htmlspecialchars($p['level'] ?? '') ?>";
+                    // add age, gender, grade, race if your form has them
+                }
+            <?php endforeach; ?>
+        <?php endif; ?>
+
+        // ── Showcase songs ──────────────────────────────────────
+        <?php if (!empty($d['showcase_songs']) && is_array($d['showcase_songs'])): ?>
+            <?php foreach ($d['showcase_songs'] as $num => $song): 
+                if (!empty($song['title'])): ?>
+                    // Assuming you have JS to add song rows or fields named showcase_songs[1][title], etc.
+                    const titleEl = document.querySelector(`[name="showcase_songs[<?= $num ?>][title]"]`);
+                    if (titleEl) titleEl.value = "<?= htmlspecialchars($song['title']) ?>";
+                    const secEl = document.querySelector(`[name="showcase_songs[<?= $num ?>][seconds]"]`);
+                    if (secEl) secEl.value = "<?= (int)($song['seconds'] ?? 0) ?>";
+                <?php endif; 
+            endforeach; ?>
+        <?php endif; ?>
+
+        // Re-run your update functions
+        updateFormForIndividual();
+        updateInstrumentDropdowns();
+        toggleShowcaseSongs();
+        toggleCompetitionExclusion();
+        toggleHotelDetails();
+        updatePaymentOptions();
+        // add any other update*() functions you have
+    });
+    </script>
+    <?php
+}
+?>
     </form>
 
     <footer>
