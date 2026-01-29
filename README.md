@@ -183,7 +183,7 @@ The system emphasizes simplicity: no user accounts, session-based state manageme
    - Test flows: Group/Individual, Mariachi/Folklorico, CC/PO, and Save/Resume.
    - Monitor PHP error logs.
 
----
+***
 
 ## **Workflow: How Registration Works**
 
@@ -226,11 +226,11 @@ The system emphasizes simplicity: no user accounts, session-based state manageme
 - DB errors: Rollbacks in transactions.
 - Expired/Invalid Tokens: Redirects to `index.php?resume=expired`.
 
----
+***
 
 ## **File-by-File Explanations**
 
-Each file's purpose, key code sections, and interactions :)
+*Each file's purpose, key code sections, and interactions :)*
 
 ### **index.php (Main Registration Form)**
 **Purpose**: The entry point and core UI. Renders a multi-section (non-paginated) form for data entry. Uses JS for dynamic behavior (e.g., adding performer rows, toggling fields). Supports pre-filling from partial resumes via session.
@@ -251,7 +251,8 @@ Each file's purpose, key code sections, and interactions :)
   - Validations: Song durations, required fields.
   - **Resume Support**: Checks `$_SESSION['partial_resume_data']` to pre-fill fields.
 - **Submission**: Posts to `process.php` (full) or `save-partial.php` (partial).
-- 
+- **Notes**: Truncated in prompt (31246 chars), but full form includes all fields. Update costs here if prices change.
+
 ### **save-partial.php (Partial Save Handler)**
 **Purpose**: Handles saving incomplete form data for later resumption. Validates minimal fields, stores data in DB, generates a token, and sends a resume email.
 
@@ -343,11 +344,11 @@ Each file's purpose, key code sections, and interactions :)
 - **.reg-closed**: Empty sentinel file to close registration.
 - **.env**: Config file (DB creds); never commit to repo.
 
----
+***
 
 ## **Database Schema Details**
 
-Tables as inferred:
+Tables:
 - **directors**: One per group; primary contact + optional assistant.
 - **performers**: Multiple per group; participant details + cost.
 - **groups**: Core entity; aggregates type, payments, options.
@@ -358,7 +359,7 @@ Tables as inferred:
 
 **Best Practices**: Add timestamps, indexes on `group_name`. Backup regularly.
 
----
+***
 
 ## **Security Considerations**
 
@@ -374,7 +375,7 @@ Tables as inferred:
   - Error Logs: Expose exceptions? Use try-catch.
 - **Recommendations**: Add CAPTCHA for spam, rate limiting, input validation (e.g., email regex).
 
----
+***
 
 ## **Maintenance and Extension Tips**
 
@@ -386,4 +387,3 @@ Tables as inferred:
 - **Scaling**: For high traffic, async emails (queue), optimize queries.
 - **Versions**: Monitor dependencies (Composer update).
 - **Contact**: For questions, email info@tucsonmariachi.org (admin).
-
