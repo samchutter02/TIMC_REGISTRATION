@@ -251,8 +251,7 @@ Each file's purpose, key code sections, and interactions :)
   - Validations: Song durations, required fields.
   - **Resume Support**: Checks `$_SESSION['partial_resume_data']` to pre-fill fields.
 - **Submission**: Posts to `process.php` (full) or `save-partial.php` (partial).
-- **Notes**: Truncated in prompt (31246 chars), but full form includes all fields. Update costs here if prices change.
-
+- 
 ### **save-partial.php (Partial Save Handler)**
 **Purpose**: Handles saving incomplete form data for later resumption. Validates minimal fields, stores data in DB, generates a token, and sends a resume email.
 
@@ -387,3 +386,4 @@ Tables as inferred:
 - **Scaling**: For high traffic, async emails (queue), optimize queries.
 - **Versions**: Monitor dependencies (Composer update).
 - **Contact**: For questions, email info@tucsonmariachi.org (admin).
+
