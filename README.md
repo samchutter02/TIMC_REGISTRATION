@@ -202,7 +202,7 @@ The system emphasizes simplicity: no user accounts, session-based state manageme
    - To resume: Visit `resume.php?token=...` – loads data into session, redirects to `index.php` with pre-filled form.
 4. **Submit (Full Registration)**:
    - Posts to `process.php`.
-   - Validates group name uniqueness.
+   - Validates group name uniqueness & IGNORES INDIVIDUAL NAMES THAT REPEAT IN DB (as there may be 4 Juan Lopez's that exist).
    - For PO: Inserts data immediately, sends emails, redirects to `confirmation-po.php`.
    - For CC: Stores in session, redirects to `invoice.php`.
 5. **Payment (CC Only)**:
@@ -387,3 +387,4 @@ Tables:
 - **Scaling**: For high traffic, async emails (queue), optimize queries.
 - **Versions**: Monitor dependencies (Composer update).
 - **Contact**: For questions, email info@tucsonmariachi.org (admin).
+
