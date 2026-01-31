@@ -386,5 +386,5 @@ Tables:
 - **Testing**: Use Stripe test cards (e.g., 4242424242424242). Test resume with invalid/expired tokens.
 - **Scaling**: For high traffic, async emails (queue), optimize queries.
 - **Versions**: Monitor dependencies (Composer update).
-- **Contact**: For questions, email info@tucsonmariachi.org (admin).
+- **Contact**: For questions, email samcwebdev@gmail.com (owner/author).
 
